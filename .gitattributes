@@ -1,0 +1,1 @@
+/home/volumio/volumio-plugins/*.zip filter=lfs diff=lfs merge=lfs -text
