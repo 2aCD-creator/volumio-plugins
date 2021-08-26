@@ -3,6 +3,7 @@
 	"version": "1.0.3",
 	"description": "peppy screensaver",
 	"main": "index.js",
+	"private": true,
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -25,7 +26,7 @@
 		"utf-8-validate": "^5.0.2"
 	},
 	"repository": {
-		"type": "git",
-		"url": "git://github.com/2aCD-creator/volumio-plugins.git"
+  		"type": "git",
+  		"url": "git://github.com/2aCD-creator/volumio-plugins.git"
 	}
 }
