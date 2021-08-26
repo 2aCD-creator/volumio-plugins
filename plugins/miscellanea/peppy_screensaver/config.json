@@ -1,0 +1,31 @@
+{
+  "timeout": {
+    "value":"60",
+    "type":"number"
+  },
+  "randomSelection": {
+    "value":"",
+    "type":"string"
+  },
+  "activeFolder": {
+    "value":"medium",
+    "type":"string"
+  },
+  "activeFolder_title": {
+    "value":"Medium",
+    "type":"string"
+  },
+  "screenWidth": {
+    "value":"320",
+    "type":"number"
+  },
+  "screenHeight": {
+    "value":"240",
+    "type":"number"
+  },
+  "smoothBuffer": {
+    "value":"8",
+    "type":"number"
+  }
+
+}
