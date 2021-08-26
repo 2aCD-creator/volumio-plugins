@@ -13,7 +13,7 @@
 					"version": "1.0.3",
 					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/peppy-screensaver/peppy-screensaver.zip",
 					"license": "ISC",
-					"description": "PeppyMeter Screensaver for Volumio",
+					"description": "peppy screensaver",
 					"details": "PeppyMeter Screensaver for Volumio",
 					"author": "2aCD",
 					"screenshots": [
