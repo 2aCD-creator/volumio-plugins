@@ -257,7 +257,7 @@ sed -i 's/no.frame.*/no.frame = True/g' $CFG
 # section data.source
 sed -i 's/pipe.name.*/pipe.name = \/tmp\/myfifo/g' $CFG
 sed -i 's/smooth.buffer.size.*/smooth.buffer.size = 8/g' $CFG
-echo '___Finished        
+echo "___Finished"        
     
 #sudo /bin/systemctl restart mpd.service
 #volumio vrestart    
