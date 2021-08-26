@@ -1,7 +1,7 @@
 {
 	"name": "peppy_screensaver",
-	"version": "1.0.0",
-	"description": "PeppyMeter as Screensaver",
+	"version": "1.0.1",
+	"description": "peppy screensaver",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -9,13 +9,16 @@
 	"author": "2aCD",
 	"license": "ISC",
 	"volumio_info": {
-		"prettyName": "peppy_screensaver",
+		"prettyName": "PeppyMeter Screensaver",
 		"icon": "fa-lightbulb-o",
-		"plugin_type": "miscellanea"
+		"plugin_type": "miscellanea",
+        	"boot_priority": 2,
+		"has_alsa_contribution":true
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.0"
+		"v-conf": "^1.4.0",
+		"socket.io-client": "^2.3.1"
 	}
 }
