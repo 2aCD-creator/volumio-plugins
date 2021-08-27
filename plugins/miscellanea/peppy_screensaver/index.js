@@ -54,7 +54,7 @@ peppyScreensaver.prototype.onStart = function() {
     self.install_mkfifo();
     // create asound.conf if needed
     if (self.IfBuster()) {
-        self.logger.info('_________________ detect Buster _________________');
+        //self.logger.info('_________________ detect Buster _________________');
         
         // load snd dummy for peppymeter output 
         self.install_dummy();
@@ -80,7 +80,7 @@ peppyScreensaver.prototype.onStart = function() {
 
 
     } else {
-        self.logger.info('_________________ detect Jessie _________________');
+        //self.logger.info('_________________ detect Jessie _________________');
         // event callback if outputdevice or mixer changed
         this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.createAsoundConfig.bind(this));
         
@@ -125,7 +125,7 @@ peppyScreensaver.prototype.onStop = function() {
 
 
     if (self.IfBuster()) {
-        self.logger.info('_________________ detect Buster _________________');
+        //self.logger.info('_________________ detect Buster _________________');
 
         self.commandRouter.stateMachine.stop().then(function () {
           fs.readFile(MPD, 'utf8', function (err, data) {
@@ -150,7 +150,7 @@ peppyScreensaver.prototype.onStop = function() {
         });
         
     } else {
-        self.logger.info('_________________ detect Jessie _________________');
+        //self.logger.info('_________________ detect Jessie _________________');
         
         self.commandRouter.stateMachine.stop().then(function () {
           // stop events
