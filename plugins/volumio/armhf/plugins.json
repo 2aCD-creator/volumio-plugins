@@ -14,7 +14,7 @@
 					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/peppy-screensaver/peppy-screensaver.zip",
 					"license": "ISC",
 					"description": "peppy screensaver",
-					"details": "test",
+					"details": "PeppyMeter Screensaver",
 					"author": "2aCD",
 					"screenshots": [
 						{
