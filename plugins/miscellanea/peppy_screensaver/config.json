@@ -1,4 +1,8 @@
 {
+  "alsaSelection": {
+    "value":"0",
+    "type":"number"
+  },
   "timeout": {
     "value":"60",
     "type":"number"
@@ -14,14 +18,6 @@
   "activeFolder_title": {
     "value":"Medium",
     "type":"string"
-  },
-  "screenWidth": {
-    "value":"320",
-    "type":"number"
-  },
-  "screenHeight": {
-    "value":"240",
-    "type":"number"
   },
   "smoothBuffer": {
     "value":"8",
