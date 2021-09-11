@@ -10,11 +10,11 @@
 					"prettyName": "PeppyMeter Screensaver",
 					"icon": "fa-lightbulb-o",
 					"name": "peppy_screensaver",
-					"version": "1.0.3",
+					"version": "1.1.0",
 					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/peppy-screensaver/peppy-screensaver.zip",
 					"license": "ISC",
 					"description": "peppy screensaver",
-					"details": "PeppyMeter Screensaver for Volumio",
+					"details": "test",
 					"author": "2aCD",
 					"screenshots": [
 						{
@@ -22,7 +22,7 @@
 							"thumb": ""
 						}
 					],
-					"updated": "26-8-2021"
+					"updated": "11-9-2021"
 				}
 			]
 		}
