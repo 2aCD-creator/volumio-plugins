@@ -14,7 +14,7 @@ sudo apt-get update
 
 # set current directory
 dest_path=/data/plugins/miscellanea/peppy_screensaver
-tmp_path=/tmp/peppyalsa
+ppa_path=/home/volumio/peppyalsa
 peppy_path=${dest_path}/peppymeter
 
 ID=$(awk '/VERSION_ID=/' /etc/*-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
@@ -52,9 +52,9 @@ fi
 # install peppyalsa     
 if [ ! -f "/usr/local/lib/libpeppyalsa.so" ]; then
     echo "___Install peppyalsa dependencies..."
-    mkdir $tmp_path
-    git clone https://github.com/project-owner/peppyalsa.git $tmp_path
-    cd $tmp_path
+    mkdir $ppa_path
+    git clone https://github.com/project-owner/peppyalsa.git $ppa_path
+    cd $ppa_path
     sudo apt-get -y install build-essential autoconf automake libtool libasound2-dev libfftw3-dev
     
     echo "___Compile peppyalsa..."
@@ -64,7 +64,6 @@ if [ ! -f "/usr/local/lib/libpeppyalsa.so" ]; then
 
     echo "___Install peppyalsa..."
     sudo make install
-    
 else
     echo "___peppyalsa already installed"
 fi
@@ -72,74 +71,15 @@ fi
 
 ########################################
 # build peppyalsa commandline client for test of installed peppyalsa
-if [ ! -f "${dest_path}/peppyalsa-client" ]; then
+if [ -d "${ppa_path}" ] && [ ! -f "${ppa_path}/src/peppyalsa-client" ]; then
     echo "___Compile peppyalsa-client commandline tool..."
-    cd ${tmp_path}/src
+    cd ${ppa_path}/src
     if grep -q '/home/pi/myfifo' peppyalsa-client.c; then
-        sed -i 's/\/home\/pi\/myfifo/\/tmp\/myfifo/g' peppyalsa-client.c
+        sudo sed -i 's/\/home\/pi\/myfifo/\/tmp\/myfifo/g' peppyalsa-client.c
     fi
-    gcc peppyalsa-client.c -o peppyalsa-client
-    cp peppyalsa-client $dest_path 
+    sudo gcc peppyalsa-client.c -o peppyalsa-client 
 else
     echo "___commandline tool already compiled"
-fi
-
-
-########################################
-# for jessie
-if [ ! "$ID" = "10" ]; then
-    echo "___Additional modifications for jessie..."
-
-    # add missing kernel modul dummy device
-    MD=/etc/rc.local
-    if ! grep -q 'snd-dummy' $MD; then
-        echo "___Add load dummy device at startup..."
-        sudo sed -i '/^exit 0.*/i /sbin/modprobe snd-dummy index=7 pcm_substreams=1' $MD
-    else
-        echo "___snd-dummy autostart already installed"
-    fi
-    sudo modprobe snd-dummy index=7 pcm_substreams=1
-
-    # modify mpd.conf.tmpl
-    MPDT=/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl
-    MPDTT=/volumio/app/plugins/music_service/mpd/mpd.conf_tmp.tmpl
-    if ! grep -q '"mpd_peppyalsa"' $MPDT; then 
-        echo "___Add new output for peppyalsa in mpd template file..."
-        awk 'NR==FNR{if ($0 ~ /multiroom/){c=NR};next}
-	{if (FNR==(c-4)){print "\
-#---> output peppymeter\n\
-audio_output {\n\
-        type        \"alsa\"\n\
-        name        \"mpd_peppyalsa\"\n\
-        device      \"mpd_peppyalsa\"\n\
-        dop         \"yes\"\n\
-}\n\
-#<--- end peppymeter" }};1' $MPDT $MPDT > $MPDTT && mv $MPDTT $MPDT
-    else
-        echo "___mpd template file already modified"
-    fi
-    
-	# modify mpd.conf.tmpl
-	if ! grep -q '"mpd_alsa"' $MPDT; then
-		echo "___Modify mpd standard output..."
-        sed -i '0,/\t\tname\t\t"alsa"/ s//\t\tname\t\t"mpd_alsa"/' $MPDT
-		sed -i '0,/\t\tdevice\t\t"${device}"/ s//\t\tdevice\t\t"mpd_alsa"/' $MPDT
-    else
-        echo "___mpd template file already modified"
-	fi
-    
-	# modify airplay template
-	AIR=/volumio/app/plugins/music_service/airplay_emulation/shairport-sync.conf.tmpl
-	if ! grep -q '"peppyalsa"' $AIR; then
-		echo "___Modify airplay output..."
-        sed -i '0,/output_device = "${device}";/ s//output_device = "peppyalsa";/' $AIR	
-	else
-        echo "___airplay output already modified"
-    fi
-
-    # create new active mpd.conf and airplay conf
-    cd $dest_path
-    node createConf.js
 fi
 
     
@@ -221,6 +161,7 @@ else
 
     # remove asound dir for buster
     rm -d -r ${dest_path}/asound
+    rm ${dest_path}/Peppyalsa.postPeppyalsa.5.conf.tmpl
 fi
 
 ########################################
