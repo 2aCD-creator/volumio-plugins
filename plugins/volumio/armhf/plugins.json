@@ -10,19 +10,11 @@
 					"prettyName": "PeppyMeter Screensaver",
 					"icon": "fa-lightbulb-o",
 					"name": "peppy_screensaver",
-<<<<<<< HEAD
 					"version": "1.0.0",
 					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/peppy-screensaver/peppy-screensaver.zip",
 					"license": "ISC",
 					"description": "peppy screensaver",
 					"details": "test",
-=======
-					"version": "1.1.0",
-					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/peppy-screensaver/peppy-screensaver.zip",
-					"license": "ISC",
-					"description": "peppy screensaver",
-					"details": "PeppyMeter Screensaver",
->>>>>>> 920591f10114dd451f325c665256d476a722ce80
 					"author": "2aCD",
 					"screenshots": [
 						{
@@ -30,29 +22,7 @@
 							"thumb": ""
 						}
 					],
-<<<<<<< HEAD
 					"updated": "15-7-2021"
-				},
-				{
-					"prettyName": "Contemporary advanced",
-					"icon": "fa-lightbulb-o",
-					"name": "contemporary_advanced",
-					"version": "1.0.0",
-					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/contemporary_advanced/contemporary_advanced.zip",
-					"license": "ISC",
-					"description": "advanced Contemporary configuration",
-					"details": "Optimizations for Contemporary Interface",
-					"author": "2aCD",
-					"screenshots": [
-						{
-							"image": "",
-							"thumb": ""
-						}
-					],
-					"updated": "9-10-2021"
-=======
-					"updated": "11-9-2021"
->>>>>>> 920591f10114dd451f325c665256d476a722ce80
 				}
 			]
 		}
