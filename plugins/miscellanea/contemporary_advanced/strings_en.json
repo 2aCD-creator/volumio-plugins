@@ -1,0 +1,16 @@
+{
+  "CONTEMPORARY_ADVANCED":{
+    "PLUGIN_NAME":"Contemporary Advanced",
+    "PLUGIN_CONFIGURATION":"Advanced Contemporary Settings",
+    "SAVE":"Save",
+    "MODSECTION":"Mode selection",
+    "MODSECTION_DOC":"Select different modes for different behavior of Volumio UI",
+    "MODSELECTION":"Modification type",
+    "MODSELECTION_DOC":"Mod1: UI switch to standard PC-VIEW for resolution greater then 800x400<br>Mod2: mobile view for all resolutions",
+    "MOD1":"Contemporary mod 1",
+    "MOD2":"Contemporary mod 2",
+    "GLOBAL":"Global modification settings",
+    "GLOBAL_DOC":"General settings to change the appearance",
+    "NO_CHANGES":"No changes to save."
+  }
+}
