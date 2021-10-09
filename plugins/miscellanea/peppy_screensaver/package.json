@@ -28,7 +28,7 @@
 		"image-size": "^1.0.0"
 	},
 	"repository": {
-  		"type": "git",
-  		"url": "git://github.com/2aCD-creator/volumio-plugins.git"
+		"type": "git",
+		"url": "git://github.com/2aCD-creator/volumio-plugins.git"
 	}
 }
