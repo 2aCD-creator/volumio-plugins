@@ -1,5 +1,5 @@
 /* configuration settings */
-/* version 5.7 for greater 3.101 2021-09-21 */
+/* version 5.8 for greater 3.101 2021-10-15 */
 :root {
 /* ---------- GUI settings do not change manually -------------- */
 
@@ -10004,7 +10004,10 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 }
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile .track-info-rates .track-info-type img {
-		max-width: calc(18px + (var(--srate)/2));
+		/*max-width: calc(18px + (var(--srate)/2));*/
+        height: calc(var(--srate) * 0.75);
+        max-width: unset;
+        vertical-align: unset;
 	}
 }
 /* ----- changed end ----- */

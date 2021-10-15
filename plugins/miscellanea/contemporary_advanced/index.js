@@ -599,7 +599,7 @@ contemporaryAdvanced.prototype.setTitle1ModUI = function (confData) {
       
         confData.srate = self.minmax('SRATE', confData.srate, tinfo[6]);
         self.config.set('srate', confData.srate);
-        css_context_1 = css_context_1.replace(/(GUI_ID: 125.*[\r\n]+)([^\r\n]+)/, '$1--srate: ' + confData.srate + 'px;');
+        css_context_1 = css_context_1.replace(/(GUI_ID: 126.*[\r\n]+)([^\r\n]+)/, '$1--srate: ' + confData.srate + 'px;');
         //execSync(sedcmd + '125/!b;n;c--srate: ' + confData.srate + "px;' " + cssfile_1);
         confData.sratespace = self.minmax('SRATESPACE', confData.sratespace, tinfo[7]);
         self.config.set('sratespace', confData.sratespace);
