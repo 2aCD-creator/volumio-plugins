@@ -1,0 +1,66 @@
+# input from alsa pipeline
+pcm.${alsaDirect} {
+  type empty
+  slave.pcm "postpeppyalsa"
+}
+
+# input from modular alsa (DSD -> 192khz)
+pcm.${alsaMeter} {
+  type plug
+  route_policy "duplicate"
+  slave.channels 4
+  slave.pcm {
+    type multi
+
+    slaves.a.pcm "postpeppyalsa"
+    slaves.a.channels 2
+    slaves.b.pcm "${slave_b}"
+    slaves.b.channels 2
+
+    bindings.0 { slave a; channel 0; }
+    bindings.1 { slave a; channel 1; }
+    bindings.2 { slave b; channel 0; }
+    bindings.3 { slave b; channel 1; }
+  }
+}
+
+pcm.reformat {
+  type plug 
+  slave {
+    pcm "mpd_peppyalsa"
+    format "S16_LE"
+    rate ${rate}
+    channels 2
+  }
+}
+
+# input from MPD for peppyalsa
+pcm.mpd_peppyalsa{
+	type meter
+	slave.pcm "dummy"
+	scopes.0 peppyalsa
+}
+
+pcm_scope.peppyalsa {
+  type peppyalsa
+  decay_ms 400
+  meter "/tmp/myfifo"
+  meter_max 100
+  meter_show 1
+}
+
+pcm_scope_type.peppyalsa {
+    lib /usr/local/lib/libpeppyalsa.so
+}
+
+# null output
+pcm.dummy {
+  type hw
+	card Dummy
+	device 0
+}
+
+pcm.postpeppyalsa {
+  type empty
+  slave.pcm "postPeppyalsa"
+}
