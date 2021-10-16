@@ -3,7 +3,7 @@
 # Uninstall dependendencies
 # apt-get remove -y
 
-
+mpd_path=/data/mpd
 # restore css file
 www3=/volumio/http/www3
 cd ${www3}/styles
@@ -13,6 +13,8 @@ ID=${ID#*app-}
 ID=${ID%.*}
 
 df ${www3}/styles/app-${ID}.css | grep ${www3}/styles/app-${ID}.css && sudo umount ${www3}/styles/app-${ID}.css
+
+[ -d ${mpd_path} ] && rm -d -r ${mpd_path}
 
 fstab=/etc/fstab
 cd $dest_path
