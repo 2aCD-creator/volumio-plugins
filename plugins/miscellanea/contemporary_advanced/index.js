@@ -12,7 +12,7 @@ const id = 'contemporary_advanced: ';
 const indexfile = '/volumio/http/www3/index.html';
 const StylesPath = '/volumio/http/www3/styles';
 const MPDindex = '/volumio/app/plugins/music_service/mpd/index.js';
-const MPD = '/data/mpd/MPDindex.js';
+const MPD = '/data/configuration/miscellanea/contemporary_advanced/MPDindex.js';
 const fstab = '/etc/fstab';
 
 var scalemem = 0;
