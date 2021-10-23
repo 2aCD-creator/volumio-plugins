@@ -18,9 +18,10 @@ const id = 'peppy_screensaver: ';
 var minmax = new Array(5);
 var last_outputdevice, last_softmixer;
 
-var MPD = '/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl'
-var MPDT = '/volumio/app/plugins/music_service/mpd/mpd.conf_tmp.tmpl'
-var AIR = '/volumio/app/plugins/music_service/airplay_emulation/shairport-sync.conf.tmpl'
+const MPDtmpl = '/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl'
+const MPD = '/data/configuration/miscellanea/peppy_screensaver/mpd.conf.tmpl';
+const AIRtmpl = '/volumio/app/plugins/music_service/airplay_emulation/shairport-sync.conf.tmpl'
+const AIR = '/data/configuration/miscellanea/peppy_screensaver/shairport-sync.conf.tmpl';
 var availMeters = '';
 var uiNeedsUpdate;
   
@@ -64,14 +65,19 @@ peppyScreensaver.prototype.onStart = function() {
 
       // inject additional output to peppymeter it's removed on stop
       try {
-        var data = fs.readFileSync(MPD, 'utf-8');
-        if ((data).indexOf('mpd_peppyalsa') < 0) {
-            self.add_mpdoutput (MPD, MPDT)
+        if (!fs.existsSync(MPD)){
+            fs.copySync(MPDtmpl, MPD); // copy orignal file
+            self.add_mpdoutput (MPD)
+                .then(self.mount_tmpl.bind(self, MPD, MPDtmpl))
                 .then(self.recreate_mpdconf.bind(self))
                 .then(self.restartMpd.bind(self));
+        } else {
+            // mount mpd_tmpl
+            self.mount_tmpl(MPD, MPDtmpl);
+            
         }
       } catch (err) {
-        self.logger.error(id + MPD + 'not found');
+        self.logger.error(id + MPDtmpl + 'not found');
       }
     
       last_outputdevice = self.getAlsaConfigParam('outputdevice');
@@ -109,14 +115,21 @@ peppyScreensaver.prototype.onStart = function() {
         // inject additional output to peppymeter it's removed on stop
         // and create asound.conf from template
         try {
-            var data = fs.readFileSync(MPD, 'utf-8');
-            if ((data).indexOf('mpd_peppyalsa') < 0) {
+            if (!fs.existsSync(MPD)){
+                fs.copySync(MPDtmpl, MPD); // copy orignal files
+                fs.copySync(AIRtmpl, AIR);
                 self.createAsoundConfig()
                     .then(self.redirect_airoutput.bind(self, AIR))
-                    .then(self.add_mpdoutput.bind(self, MPD, MPDT))
+                    .then(self.mount_tmpl.bind(self, AIR, AIRtmpl))
+                    .then(self.add_mpdoutput.bind(self, MPD))
                     .then(self.redirect_mpdoutput.bind(self, MPD))
+                    .then(self.mount_tmpl.bind(self, MPD, MPDtmpl))
                     .then(self.recreate_mpdconf.bind(self))
                     .then(self.restartMpd.bind(self));
+            } else {
+                // mount mpd_tmpl, air_tmpl
+                self.mount_tmpl(MPD, MPDtmpl);
+                self.mount_tmpl(AIR, AIRtmpl);
             }
         } catch (err) {
             self.logger.error(id + MPD + 'not found');
@@ -163,23 +176,25 @@ peppyScreensaver.prototype.onStop = function() {
     var defer=libQ.defer();
 
     self.commandRouter.stateMachine.stop().then(function () {
-        fs.readFile(MPD, 'utf8', function (err, data) {
-            if (err) {
-                self.logger.error(id + MPD + 'not found');
-            } else {
-                if ((data).indexOf('mpd_peppyalsa') >= 0) {
-                    // remove additional output to peppymeter
-                    self.del_mpdoutput (MPD)
-                        .then(self.MPD_allowedFormats.bind(self, MPD, true)) //remove allowed formats (only for buster needed)
-                        .then (self.recreate_mpdconf.bind(self))
-                        .then(self.restartMpd.bind(self));
-                        
-                } else {
-                    self.logger.info (id + 'mpd template file already modified');
-                }
-                defer.resolve();                
-            }
-        });
+        if (fs.existsSync(MPD)){
+            //unmount mpd_tmpl file, if mounted
+            self.unmount_tmpl(MPDtmpl)
+                .then(function(){
+                    fs.removeSync(MPD);                   
+                    self.recreate_mpdconf().then(self.restartMpd.bind(self));
+                });
+        } else {
+            self.logger.info (id + 'mpd template already unmounted');
+        }
+
+        if (fs.existsSync(AIR)){
+            //unmount air_tmpl file, if mounted
+            self.unmount_tmpl(AIRtmpl)
+                .then(function() {fs.removeSync(AIR);});
+        } else {
+            self.logger.info (id + 'air template already unmounted');
+        }
+        defer.resolve();                
           
         // stop events
         socket.off('pushState');
@@ -562,6 +577,7 @@ peppyScreensaver.prototype.switch_alsaConfig = function (alsaConf) {
         .then(self.MPD_allowedFormats.bind(self, MPD, enableDSD))
         .then(self.writeAsoundConfigModular.bind(self, alsaConf))
         .then(self.updateALSAConfigFile.bind(self))
+        .then(self.updateMountpoint.bind(self, MPD, MPDtmpl))
         .then(self.recreate_mpdconf.bind(self))
         .then(self.restartMpd.bind(self));
     defer.resolve
@@ -663,7 +679,7 @@ peppyScreensaver.prototype.MPD_allowedFormats = function (data, enableDSD) {
 };
 
 // inject additional output for peppymeter to mpd.conf.tmpl
-peppyScreensaver.prototype.add_mpdoutput = function (data, data_tmp) {
+peppyScreensaver.prototype.add_mpdoutput = function (data) {
   const self = this;
   let defer = libQ.defer();
   
@@ -680,7 +696,7 @@ audio_output {\\n\
 }\\n\
 #<--- end peppymeter"';
   
-  exec("awk 'NR==FNR{if ($0 ~ /multiroom/){c=NR};next} {if (FNR==(c-4)) {print " + insertStr + " }};1' " +  data + " " + data + " > " + data_tmp + " && mv " + data_tmp + " " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+  exec("awk 'NR==FNR{if ($0 ~ /multiroom/){c=NR};next} {if (FNR==(c-4)) {print " + insertStr + " }};1' " +  data + " " + data + " > " + data + "_tmp && mv " + data + "_tmp " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
     if (error) {
         self.logger.warn(id + 'An error occurred when creating inject', error);
     } else {
@@ -757,6 +773,7 @@ peppyScreensaver.prototype.recreate_mpdconf = function () {
   return defer.promise;
 };  
 
+// restart MPD-deamon
 peppyScreensaver.prototype.restartMpd = function () {
   var self = this;
   var defer = libQ.defer();
@@ -768,6 +785,55 @@ peppyScreensaver.prototype.restartMpd = function () {
 
   return defer.promise;
 };
+
+//mount a copy of changed file over 
+peppyScreensaver.prototype.mount_tmpl = function (data_source, data_dest) {
+  var self = this;
+  var defer = libQ.defer();
+  
+  exec('/bin/df ' + data_dest + ' | /bin/grep ' + data_dest + ' && /bin/echo || /bin/echo volumio | /usr/bin/sudo -S /bin/mount --bind ' + data_source + ' ' + data_dest, function (error, stdout, stderr) {        
+    if (error) {
+        self.logger.error(id + 'Error mount ' + data_source + ' ' + error);
+    } else {
+        defer.resolve();
+    }    
+  });        
+  
+  return defer.promise;
+};
+
+//unmount a copy of changed file
+peppyScreensaver.prototype.unmount_tmpl = function (data_dest) {
+  var self = this;
+  var defer = libQ.defer();
+
+  exec('/bin/df ' + data_dest + ' | /bin/grep ' + data_dest + ' && /bin/echo volumio | /usr/bin/sudo -S /bin/umount ' + data_dest, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {        
+    if (error) {
+        self.logger.error(id + 'Error unmount ' + data_dest + ' ' + error);
+    } else {
+        defer.resolve();
+    }    
+  });        
+  
+  return defer.promise;
+};
+
+// update the mountpoint after change the copied file
+peppyScreensaver.prototype.updateMountpoint = function (data_source, data_dest) {
+  var self = this;
+  var defer = libQ.defer();
+
+    try {
+        execSync('/bin/df ' + data_dest + ' | /bin/grep ' + data_dest + ' && /bin/echo volumio | /usr/bin/sudo -S /bin/umount ' + data_dest);
+        execSync('/bin/df ' + data_dest + ' | /bin/grep ' + data_dest + ' && /bin/echo || /bin/echo volumio | /usr/bin/sudo -S /bin/mount --bind ' + data_source + ' ' + data_dest);
+        defer.resolve();
+    } catch (err) {
+        self.logger.error(id + 'Cannot update mpd mountpoint');
+    }
+    
+  return defer.promise;
+};
+
 
 // create asound depend on mixer type
 peppyScreensaver.prototype.createAsoundConfig = function () {
