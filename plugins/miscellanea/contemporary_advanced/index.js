@@ -12,6 +12,7 @@ const id = 'contemporary_advanced: ';
 const indexfile = '/volumio/http/www3/index.html';
 const StylesPath = '/volumio/http/www3/styles';
 const MPDindex = '/volumio/app/plugins/music_service/mpd/index.js';
+const MPD = '/data/mpd/MPDindex.js';
 const fstab = '/etc/fstab';
 
 var scalemem = 0;
@@ -20,7 +21,7 @@ var aart = new Array(3);
 var tinfo = new Array(8);
 var tinfo2 = new Array(18);
 var uiNeedsUpdate;
-var cssfile, cssfile_1, cssfile_2, MPD;
+var cssfile, cssfile_1, cssfile_2;
 var styleID = '';
 
 module.exports = contemporaryAdvanced;
@@ -59,7 +60,7 @@ contemporaryAdvanced.prototype.onStart = function() {
     cssfile = StylesPath + '/app-' + styleID + '.css';
     cssfile_1 = __dirname + '/' + styleID + '/app-' + styleID + '_1.css';
     cssfile_2 = __dirname + '/' + styleID + '/app-' + styleID + '_2.css';
-    MPD = __dirname + '/mpd/MPDindex.js';
+
     
     // check on changed styleID    
     if (fs.existsSync(__dirname + '/' + styleID)){
