@@ -1,0 +1,26 @@
+{
+  "alsaSelection": {
+    "value":"0",
+    "type":"number"
+  },
+  "timeout": {
+    "value":"60",
+    "type":"number"
+  },
+  "randomSelection": {
+    "value":"",
+    "type":"string"
+  },
+  "activeFolder": {
+    "value":"medium",
+    "type":"string"
+  },
+  "activeFolder_title": {
+    "value":"Medium",
+    "type":"string"
+  },
+  "smoothBuffer": {
+    "value":"8",
+    "type":"number"
+  }
+}
