@@ -2,6 +2,9 @@
 With this plugin some optimizations for VOLUMIO UI are available
 
 -----
+##### Version: 1.02
+
+* vertical center of recteangular albumarts
 
 ##### Version: 1.01
 
