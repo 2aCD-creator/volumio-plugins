@@ -28,7 +28,7 @@
 					"prettyName": "Contemporary advanced",
 					"icon": "fa-lightbulb-o",
 					"name": "contemporary_advanced",
-					"version": "1.0.2",
+					"version": "1.0.3",
 					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/contemporary_advanced/contemporary_advanced.zip",
 					"license": "ISC",
 					"description": "advanced Contemporary configuration",
@@ -40,7 +40,7 @@
 							"thumb": ""
 						}
 					],
-					"updated": "25-10-2021"
+					"updated": "24-11-2021"
 				}
 			]
 		}
