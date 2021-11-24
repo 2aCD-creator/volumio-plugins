@@ -880,9 +880,10 @@
         {
           "id": "showalbumart",
           "element": "switch",
-          "doc":"TRANSLATE.CONTEMPORARY_ADVANCED.ALBUMART_DOC",
-          "label": "TRANSLATE.CONTEMPORARY_ADVANCED.ALBUMART",
-          "value": false
+          "doc":"TRANSLATE.CONTEMPORARY_ADVANCED.ALBUMARTS_DOC",
+          "label": "TRANSLATE.CONTEMPORARY_ADVANCED.ALBUMARTS",
+          "value": false,
+          "hidden": true
         },
         {
           "id": "sortalbumartist",

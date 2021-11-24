@@ -69,10 +69,11 @@ contemporaryAdvanced.prototype.onStart = function() {
                     
             if (self.config.get('firstrun')) {
             
-                if (self.config.get('showalbumart') || self.config.get('sortalbumartist')) {
+                //if (self.config.get('showalbumart') || self.config.get('sortalbumartist')) {
+                if (self.config.get('sortalbumartist')) {
                     // copy orignal file
                     fs.copySync(MPDindex, MPD);
-                    self.setAlbumart(MPD);
+                    //self.setAlbumart(MPD); not more compatible
                     self.setAlbumartist(MPD);
                     
                     // add MPD mountpoint to fstab
@@ -753,10 +754,11 @@ contemporaryAdvanced.prototype.setGenreModUI = function (confData) {
         }
 
         // only on first start, if not exist copied mpd
-        if (confData.showalbumart || confData.sortalbumartist) {
+        //if (confData.showalbumart || confData.sortalbumartist) {
+        if (confData.sortalbumartist) {
             if (!fs.existsSync(MPD)) {
                 fs.copySync(MPDindex, MPD);
-                self.setAlbumart(MPD);
+                //self.setAlbumart(MPD); not more compatible
                 self.setAlbumartist(MPD);                
                 self.AddMPDMountpoint();
                 self.rebootMessage();
