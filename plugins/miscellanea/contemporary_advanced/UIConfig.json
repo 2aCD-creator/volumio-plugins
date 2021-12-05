@@ -54,6 +54,8 @@
           "forecolor",
           "colorCustom",
           "bgdarkness",
+          "bgkfilter",
+          "bgkfilterplay",
           "ftopacity",
           "fthide",
           "roundedslider",
@@ -98,6 +100,24 @@
             "label": "0.4"
           },
 --InsertOpacities--
+        },
+        {
+          "id": "bgkfilter",
+          "element": "switch",
+          "doc": "TRANSLATE.CONTEMPORARY_ADVANCED.BGKFILTER_DOC",
+          "label": "TRANSLATE.CONTEMPORARY_ADVANCED.BGKFILTER",
+          "value": false
+        },
+        {
+          "id": "bgkfilterplay",
+          "element": "switch",
+          "doc": "TRANSLATE.CONTEMPORARY_ADVANCED.BGKFILTERPLAY_DOC",
+          "label": "TRANSLATE.CONTEMPORARY_ADVANCED.BGKFILTERPLAY",
+          "value": false,
+          "visibleIf": {
+            "field": "bgkfilter",
+            "value": false
+          }
         },
         {
           "id": "ftopacity",

@@ -2,6 +2,11 @@
 With this plugin some optimizations for VOLUMIO UI are available
 
 -----
+##### Version: 1.0.4
+
+* compatibility with buster 3.163
+* add an option for blur background (only for buster)
+
 ##### Version: 1.0.3
 
 * compatibility with buster 3.152

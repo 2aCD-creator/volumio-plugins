@@ -1,6 +1,6 @@
 {
 	"name": "contemporary_advanced",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "advanced Contemporary configuration",
 	"main": "index.js",
 	"scripts": {

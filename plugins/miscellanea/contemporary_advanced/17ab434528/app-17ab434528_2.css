@@ -1,5 +1,5 @@
 /* configuration settings */
-/* version 5.81 for greater 3.101 2021-10-25 */
+/* version 5.90 for greater 3.101 2021-12-05 */
 :root {
 	
 /* ---------- GUI settings do not change manually -------------- */
@@ -23,6 +23,10 @@
 --playbtn: block; /* block - enable, none - disable */
 /* GUI_ID: 107 - changed from GUI*/
 --gobackbtn: unset; /* unset - enable, none - disable */
+/* GUI_ID: 108 - changed from GUI*/
+--bgfilterplay: none;	/* none, blur(5px) */
+/* GUI_ID: 109 - changed from GUI*/
+--bgfilter: none;	/* none, blur(5px) */
  
 /* albumart dimension for landscape */
 /* GUI_ID: 110 - changed from GUI*/
@@ -9686,6 +9690,10 @@ div#queueOutputButtonsContainer {
 	padding-bottom: calc(70px + 70px); 
 }
 /* ----- changed begin new footer enlarge main container to button ----- */
+#layout-container .main-container { 
+    backdrop-filter: var(--bgfilter);
+    -webkit-backdrop-filter: var(--bgfilter);
+}
 @media (orientation: landscape) {
 	#layout-container .main-container {
 		padding-bottom: var(--barshight);
@@ -9977,6 +9985,8 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     height: 100%;
     overflow: hidden;
     background: rgba(0, 0, 0, var(--bgdarkness));
+    backdrop-filter: var(--bgfilterplay);
+    -webkit-backdrop-filter: var(--bgfilterplay);
 } 
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile {

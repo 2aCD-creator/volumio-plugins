@@ -166,6 +166,12 @@ contemporaryAdvanced.prototype.getUIConfig = function() {
             } else {
                 uiconf.sections[4].hidden = false; // mod 2 selected
             }
+            
+            // disable blur background option for volumio 2.x (chrome to old)
+            if (self.IfBuster() == false) {
+                uiconf.sections[1].content[3].hidden = true;
+                uiconf.sections[1].content[4].hidden = true;
+            }
     
             // section 0 - mode selection -----------
             uiconf.sections[0].content[0].value.value = ContempMod;
@@ -177,20 +183,22 @@ contemporaryAdvanced.prototype.getUIConfig = function() {
             uiconf.sections[1].content[1].value = self.config.get('colorCustom');
             uiconf.sections[1].content[2].value.value = self.config.get('bgdarkness');
             uiconf.sections[1].content[2].value.label = self.config.get('bgdarkness');
-            uiconf.sections[1].content[3].value.value = self.config.get('ftopacity');
-            uiconf.sections[1].content[3].value.label = self.config.get('ftopacity');
-            uiconf.sections[1].content[4].value = self.config.get('fthide');
-            uiconf.sections[1].content[5].value = self.config.get('btnbarhide');
-            uiconf.sections[1].content[6].value = self.config.get('playbarhide');
-            uiconf.sections[1].content[7].value = parseInt(self.config.get('buttons'),10);            
-            uiconf.sections[1].content[8].value = self.config.get('gobackhide');
-            uiconf.sections[1].content[9].value = self.config.get('roundedslider');
-            uiconf.sections[1].content[10].value = self.config.get('headerbackdrop');
-            uiconf.sections[1].content[11].value.value = self.config.get('playbackground');
-            uiconf.sections[1].content[11].value.label = self.config.get('playbackground_title');
-            uiconf.sections[1].content[12].value = parseInt(self.config.get('scrollbarwidth'),10);
+            uiconf.sections[1].content[3].value = self.config.get('bgkfilter');
+            uiconf.sections[1].content[4].value = self.config.get('bgkfilterplay');
+            uiconf.sections[1].content[5].value.value = self.config.get('ftopacity');
+            uiconf.sections[1].content[5].value.label = self.config.get('ftopacity');
+            uiconf.sections[1].content[6].value = self.config.get('fthide');
+            uiconf.sections[1].content[7].value = self.config.get('btnbarhide');
+            uiconf.sections[1].content[8].value = self.config.get('playbarhide');
+            uiconf.sections[1].content[9].value = parseInt(self.config.get('buttons'),10);            
+            uiconf.sections[1].content[10].value = self.config.get('gobackhide');
+            uiconf.sections[1].content[11].value = self.config.get('roundedslider');
+            uiconf.sections[1].content[12].value = self.config.get('headerbackdrop');
+            uiconf.sections[1].content[13].value.value = self.config.get('playbackground');
+            uiconf.sections[1].content[13].value.label = self.config.get('playbackground_title');
+            uiconf.sections[1].content[14].value = parseInt(self.config.get('scrollbarwidth'),10);
             scalemem = parseInt(self.config.get('scale'),10);
-            uiconf.sections[1].content[13].value = scalemem;
+            uiconf.sections[1].content[15].value = scalemem;
 
             // read background pictures and fill selection
             fs.readdir(backgroundPath,function(err, files) {
@@ -199,7 +207,7 @@ contemporaryAdvanced.prototype.getUIConfig = function() {
               }
               files.forEach(function (f) {
                 if (f.indexOf('thumbnail-') < 0) {
-                    self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[11].options', {
+                    self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[13].options', {
                         value: f,
                         label: f.split('.')[0].capitalize()
                     });
@@ -207,10 +215,10 @@ contemporaryAdvanced.prototype.getUIConfig = function() {
               });
             });
             for (var i = 0; i < globl.length ; i++) {
-                if (i == 0 || i >= 5) {
-                    globl[i] = [uiconf.sections[1].content[i+7].attributes[2].min,
-                    uiconf.sections[1].content[i+7].attributes[3].max,
-                    uiconf.sections[1].content[i+7].attributes[0].placeholder];
+                if (i == 0 || i >= 5) { // for buttons, scrollbarwidth, scale
+                    globl[i] = [uiconf.sections[1].content[i+9].attributes[2].min,
+                    uiconf.sections[1].content[i+9].attributes[3].max,
+                    uiconf.sections[1].content[i+9].attributes[0].placeholder];
                 }
             }
 
@@ -353,6 +361,13 @@ contemporaryAdvanced.prototype.setGlobalModUI = function (confData) {
         css_context_2 = css_context_2.replace(/(GUI_ID: 101.*[\r\n]+)([^\r\n]+)/, '$1--bgdarkness: ' + confData.bgdarkness.value + ';');
         //execSync(sedcmd + '101/!b;n;c--bgdarkness: ' + confData.bgdarkness.value + ";' " + cssfile_1);
         //execSync(sedcmd + '101/!b;n;c--bgdarkness: ' + confData.bgdarkness.value + ";' " + cssfile_2);
+
+        self.config.set('bgkfilter', confData.bgkfilter);
+        css_context_1 = css_context_1.replace(/(GUI_ID: 108.*[\r\n]+)([^\r\n]+)/, '$1--bgfilter: ' + (confData.bgkfilter ? 'blur(8px)' : 'none') + ';');
+        css_context_2 = css_context_2.replace(/(GUI_ID: 108.*[\r\n]+)([^\r\n]+)/, '$1--bgfilter: ' + (confData.bgkfilter ? 'blur(8px)' : 'none') + ';');
+        self.config.set('bgkfilterplay', confData.bgkfilterplay);
+        css_context_1 = css_context_1.replace(/(GUI_ID: 109.*[\r\n]+)([^\r\n]+)/, '$1--bgfilterplay: ' + (confData.bgkfilterplay ? 'blur(8px)' : 'none') + ';');
+        css_context_2 = css_context_2.replace(/(GUI_ID: 109.*[\r\n]+)([^\r\n]+)/, '$1--bgfilterplay: ' + (confData.bgkfilterplay ? 'blur(8px)' : 'none') + ';');
 
         self.config.set('ftopacity', confData.ftopacity.value);
         css_context_1 = css_context_1.replace(/(GUI_ID: 102.*[\r\n]+)([^\r\n]+)/, '$1--ftopacity: ' + confData.ftopacity.value + ';');
@@ -977,6 +992,11 @@ contemporaryAdvanced.prototype.getConfigParam = function (key) {
 contemporaryAdvanced.prototype.setConfigParam = function (data) {
   var self = this;
   self.config.set(data.key, data.value);
+};
+
+contemporaryAdvanced.prototype.IfBuster = function () {
+	var self = this; 
+    return self.commandRouter.executeOnPlugin('system_controller', 'system', 'getConfigParam', 'system_version') < 3.0 ? false : true;
 };
 
 // ----------------------------------------------------  

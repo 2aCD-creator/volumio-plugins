@@ -1,8 +1,8 @@
 /* configuration settings */
-/* version 5.90 for greater then 2.083 and 3.067 2021-12-05 */
+/* version 5.90 for greater 3.163 2021-12-05 */
 :root {
+	
 /* ---------- GUI settings do not change manually -------------- */
-
 /* forgeround color
 /* GUI_ID: 100 - changed from GUI*/
 --forecolor: 84, 198, 136;
@@ -12,10 +12,13 @@
 /* footer settings opacity */
 /* GUI_ID: 102 - changed from GUI*/
 --ftopacity: 0.5; /* 1 -> 100% full black , 0 -> transparent (default 1) */
+/* enable/disable the header backdrop blur filter, it resolves a performance problem with higher resolutions > 800px */ 
+/* GUI_ID: 103 - changed from GUI*/
+--headerBackdrop: none; /* unset - enable, none - disable */
 /* GUI_ID: 104 - changed from GUI*/
 --scrollbarwidth: 10px; /* 10px...20px scrollbar width */
 /* GUI_ID: 105 - changed from GUI*/
---trackbtn: inline-block; /* inline-block - enable, none - disable */
+--trackbtn: inline-block; /* inline-block - enable, none - disable */ 
 /* GUI_ID: 106 - changed from GUI*/
 --playbtn: block; /* block - enable, none - disable */
 /* GUI_ID: 107 - changed from GUI*/
@@ -24,7 +27,8 @@
 --bgfilterplay: none;	/* none, blur(5px) */
 /* GUI_ID: 109 - changed from GUI*/
 --bgfilter: none;	/* none, blur(5px) */
-
+ 
+/* albumart dimension for landscape */
 /* GUI_ID: 110 - changed from GUI*/
 --aadim: 0px;		/* -10px...0... +10px to resize */
 /* GUI_ID: 111 - changed from GUI*/
@@ -46,7 +50,7 @@
 
 /* enlarge play buttonsbar for sreen hight > 400px */
 /* GUI_ID: 119 - changed from GUI*/
---buttons: 0; /* 0 - disable, 1...5 to enlarge */
+--buttons: 0; /* 0 - disable, 1...5 enlarge */
 /* textwrap for title and artist /album */
 /* GUI_ID: 120 - changed from GUI*/
 --textwrap: nowrap; /* normal - wrap lines, nowrap - text with dots */
@@ -55,23 +59,46 @@
 --tinfoleft: 0vw; /* x space on left side */
 /* GUI_ID: 128 - changed from GUI*/
 --tinforight: 0vw; /* x space on right side */
-/* track info container top position for landscape */
+/* track info container start top position */
 /* GUI_ID: 121 - changed from GUI*/
---tinfoY: 8vh;	/* y - position for screen width % from vertical hight */
-/* title info size for landscape */
+--tinfoY: 8vh;	/* y - position for screen width < 1200 in % from vertical hight */ 
+/* GUI_ID: 131 - changed from GUI*/
+--tinfoY2: 12vh;/* y - position for screen width > 1200 and < 1600 in % from vertical hight */ 
+/* GUI_ID: 141 - changed from GUI*/
+--tinfoY3: 15vh;/* y - position for screen width > 1600 in % from vertical hight */
+
+/* title info for landscape */
 /* GUI_ID: 122 - changed from GUI*/
---title600: 16px;	/* for screen hight < 600px (default 16px) */ 
-/* GUI_ID: 123 - changed from GUI*/
---title601: 18px;	/* for screen hight > 600px (default 18px) */
+--title: 16px;		/* for screen width < 1200px (default 16px) */ 
+/* GUI_ID: 132 - changed from GUI*/
+--title2: 20px;		/* for screen width > 1200 and < 1600 (default 20px) */
+/* GUI_ID: 142 - changed from GUI*/
+--title3: 24px;		/* for screen width > 1600 (default 24px) */
+
 /* artist - album size for landscape */
+/* GUI_ID: 123 - changed from GUI*/
+--artist: 14px;		/* for screen width < 1200 (default 14px) */
+/* GUI_ID: 133 - changed from GUI*/
+--artist2: 16px;	/* for screen width > 1200 and < 1600 (default 16px) */
+/* GUI_ID: 143 - changed from GUI*/
+--artist3: 18px;	/* for screen width > 1600 (default 18px) */
+
+/* sample rate for landscape */
 /* GUI_ID: 124 - changed from GUI*/
---artist: 14px;		/* default 14px */
-/* sample rate size for landscape */
+--srate: 14px;		/* for screen width < 1200 (default 14px) */
+/* GUI_ID: 134 - changed from GUI*/
+--srate2: 16px;		/* for screen width > 1200 and < 1600 (default 15px) */
+/* GUI_ID: 144 - changed from GUI*/
+--srate3: 24px;		/* for screen width > 1600 (default 24px) */
+
+/* sample rate for landscape */
 /* GUI_ID: 125 - changed from GUI*/
---sratespace: 5px;	/* space between title and sample rate */
-/* GUI_ID: 126 - changed from GUI*/
---srate: 14px;		/* fontsize (default 14px) */
-	
+--sratespace: 5px;	/* for screen width < 1200 (default 5px) */
+/* GUI_ID: 135 - changed from GUI*/
+--sratespace2: 10px;		/* for screen width > 1200 and < 1600 (default 10px) */
+/* GUI_ID: 145 - changed from GUI*/
+--sratespace3: 15px;		/* for screen width > 1600 (default 15px) */
+
 /* ---------- internal variables not change this ---------- */
 	--barshight: 70px;
 	--calcaadim: calc(100vh - var(--barshight) - var(--aaspaceY)*2 + var(--aadim));
@@ -79,6 +106,8 @@
 @media (orientation: landscape) and (max-width: 991px) {
 :root { --barshight: 50px;}
 }
+@media (min-width: 1931px) {
+:root { --barshight: 90px;}
 }
 @font-face {
     font-family: "Lato";
@@ -2457,7 +2486,9 @@ address {
         margin-left: 100%;
     }
 }
-@media (min-width: 992px) {
+/* ----- changed begin extended mobile ----- */
+/* @media (min-width: 992px) { */
+@media (min-width: 1931px) {	
     .col-md-1,
     .col-md-10,
     .col-md-11,
@@ -2782,7 +2813,8 @@ address {
         margin-left: 100%;
     }
 }
-@media (min-width: 1200px) {
+/* ----- changed end ----- */
+@media (min-width: 1200px) { 
     .col-lg-1,
     .col-lg-10,
     .col-lg-11,
@@ -3957,11 +3989,16 @@ a.btn.disabled,
 fieldset[disabled] a.btn {
     pointer-events: none;
 }
-/* ----- changed begin new footer ----- */
 .btn-default {
     color: #fff;
-    background-color: transparent; /* #7a848e; */
+    background-color: #7a848e;
     border-color: #ccc;
+}
+/* ----- changed begin new footer ----- */
+@media (orientation: landscape) and (max-width: 1930px) {
+	.btn-default {
+		background-color: transparent;
+	}
 }
 /* ----- changed end ----- */
 .btn-default.focus,
@@ -6023,21 +6060,26 @@ body.noScroll {
         display: none !important;
     }
 }
-@media (min-width: 768px) and (max-width: 991px) {
+/* ----- changed begin extended mobile ----- */
+/* @media (min-width: 768px) and (max-width: 991px) {*/
+ @media (min-width: 768px) and (max-width: 1930px) {
     .hidden-sm {
         display: none !important;
     }
 }
-@media (min-width: 992px) and (max-width: 1199px) {
+/* @media (min-width: 992px) and (max-width: 1199px) { */
+@media (min-width: 1931px){
     .hidden-md {
         display: none !important;
     }
 }
-@media (min-width: 1200px) {
+/*@media (min-width: 1200px) {*/
+@media (min-width: 1931px) {	
     .hidden-lg {
         display: none !important;
     }
 }
+/* ----- changed end ----- */
 .visible-print {
     display: none !important;
 }
@@ -6099,12 +6141,17 @@ body.noScroll {
     border-color: rgba(var(--forecolor),1);
     background-color: rgba(20, 20, 20, 0.6);
 }
-/* ----- changed begin new footer ----- */
 .btn.btn-default {
     color: rgba(var(--forecolor),1);
     border: 2px solid rgba(var(--forecolor),1);
     box-shadow: 0 0 1px transparent;
-    background: transparent; /* rgba(20, 20, 20, 0.6); */
+    background: rgba(20, 20, 20, 0.6);
+}
+/* ----- changed begin new footer ----- */
+@media (orientation: landscape) and (max-width: 1930px) {
+	.btn.btn-default {
+		background: transparent;
+	}
 }
 /* ----- changed end ----- */
 .btn.btn-default.selected {
@@ -6216,7 +6263,7 @@ body.noScroll {
     border-radius: 4px;
     color: #fff;
 }
-/* .btn-link.active {
+/*.btn-link.active {
     color: #339a62;
 }*/
  .btn-link.active {
@@ -6310,7 +6357,7 @@ table .hamburgerMenu .buttonsGroup.last {
     margin-top: 20px;
 }
 .panel .panel-heading {
-	border-bottom: solid 1px rgba(var(--forecolor),1);	
+    border-bottom: solid 1px rgba(var(--forecolor),1);
 }
 /* ----- changed begin smaller header ----- */
 .panel .panel-heading {
@@ -6554,6 +6601,7 @@ ul.dropdown-menu a {
     width: var(--scrollbarwidth);
     height: 10px;
 }
+/* ----- changed end bigger scrollbar ----- */
 ::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
@@ -7028,7 +7076,7 @@ div#wifiSecuritySelectorWizard {
     font-size: 19px;
 }
 .outputs__subtitle {
-    color: #32c675;
+    color: #51b289;
     margin-bottom: 1.2rem;
 }
 .outputs__action {
@@ -7241,7 +7289,7 @@ div#wifiSecuritySelectorWizard {
     box-shadow: 1px 1px 0 1px #000;
     transform: rotate(33deg);
 }
-#modalWebRadio input,
+#modalWebRadio input,					 
 .volume-control__popover {
     width: 100%;
 }
@@ -8046,6 +8094,8 @@ a.btn.btn-outline.pull-right {
 }
 .plan__card .plan__trial {
     margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 800;
 }
 .plan__card .plan__price {
     margin-bottom: 4px;
@@ -8397,11 +8447,11 @@ a.btn.btn-outline.pull-right {
         width: 100%;
     }
 }
-/* ----- changed begin smaller header ----- */
-@media (orientation: landscape) and (max-width: 991px) {
+/* ----- changed begin extended mobile ----- */
+/*@media (min-width: 768px) and (max-width: 991px) {*/
+@media (min-width: 768px) and (max-width: 1930px) {
     #browse .panel .browse-header-container {
         width: 100%;
-		height: 50px;
     }
 }
 /* ----- changed end ----- */
@@ -8787,7 +8837,7 @@ form#searchForm {
     padding: 16px;
 }
 #browse-page {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.2);   
 }
 .main__source {
     margin-bottom: 32px;
@@ -8888,7 +8938,8 @@ form#searchForm {
         transform: rotate(360deg);
     }
 }
-/* @media (min-width: 789px) and (max-width: 990px) {
+
+/* @media (min-width: 768px) and (max-width: 990px) {
     .browse__browse-page,
     .browse__main-page {
         padding: 24px;
@@ -8948,7 +8999,7 @@ form#searchForm {
         right: 0;
     }
 }
-@media (min-width: 991px) {
+@media (min-width: 991px) and (max-width: 1199px) {
     .music-card__wrapper {
         -ms-flex: 0 0 calc((100% / 6) - 10px);
         flex: 0 0 calc((100% / 6) - 10px);
@@ -8963,12 +9014,41 @@ form#searchForm {
         right: 0;
     }
 }
+@media (min-width: 1200px) and (max-width: 1599px) {
+    .music-card__wrapper {
+        -ms-flex: 0 0 calc((98% / 7) - 10px);
+        flex: 0 0 calc((98% / 7) - 10px);
+        min-width: 0;
+    }
+    .music-card__wrapper:not(:nth-child(7n)) {
+        margin-right: 12px;
+    }
+    .music-card__wrapper:not(:nth-child(7n + 1)) .dropdown-menu.align-to-right {
+        z-index: 1000;
+        left: auto;
+        right: 0;
+    }
+}
+@media (min-width: 1600px) {
+    .music-card__wrapper {
+        -ms-flex: 0 0 calc((98% / 8) - 10px);
+        flex: 0 0 calc((98% / 8) - 10px);
+        min-width: 0;
+    }
+    .music-card__wrapper:not(:nth-child(8n)) {
+        margin-right: 12px;
+    }
+    .music-card__wrapper:not(:nth-child(8n + 1)) .dropdown-menu.align-to-right {
+        z-index: 1000;
+        left: auto;
+        right: 0;
+    }
+}
 #browse .panel .body-content.new-browse {
     top: calc(var(--barshight) + 2px);
     height: calc(100% - var(--barshight) - 2px);
 }
 /* ----- changed end ----- */
-
 .album__header,
 .artist__header {
     position: relative;
@@ -9220,6 +9300,9 @@ form#searchForm {
         -moz-filter: blur(48px);
         -webkit-filter: blur(48px);
         -o-filter: blur(48px);
+/* ----- changed begin Performance for AMOLED ----- */
+		display: var(--headerbackdrop);
+/* ----- changed end ----- */
     }
     .header__content {
         background: rgba(0, 0, 0, 0.6);
@@ -9244,7 +9327,7 @@ form#searchForm {
         box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.7);
 		border: calc(1px * var(--border)) solid rgba(var(--bordercolor), 0.7);
 		border-radius: calc(3% * var(--bordercorner));
-    }
+	}
 /* ----- changed end ----- */
     .header__play {
         -ms-flex: 1 1 auto;
@@ -9334,18 +9417,18 @@ img.filetype-description {
 }
 /* ----- changed begin new footer ----- */
 #footer-content #player-bar {
-	position: relative;
-	float: left;
-	width: 100%;
-	min-height: 1px;
-	padding-left: 15px;
-	padding-right: 15px;
-	border-top: 1px solid rgba(var(--forecolor),1);
+    position: relative;
+    float: left;
+    width: 100%;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-top: 1px solid rgba(var(--forecolor),1);
     height: var(--barshight);
-    bottom: var(--barshight); 
-	background-color: rgba(9, 9, 9, 0.9);
+    bottom: var(--barshight);
+    background-color: rgba(9, 9, 9, 0.9);
 }
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape) and (max-width: 1930px) {
 	#footer-content #player-bar {
 		bottom: 0;
 		background-color: transparent; /* rgba(9, 9, 9, 0.7); */ 
@@ -9359,8 +9442,8 @@ img.filetype-description {
 	}
 }
 #footer-content #player-bar.playback-bar {
+    bottom: 0;
 	height: var(--barshight);
-	bottom: 0;
 }
 /* GUI_ID: 200 - changed from GUI*/
 @media (orientation: landscape) and (max-width: 0px) {
@@ -9368,31 +9451,15 @@ img.filetype-description {
         display: none;
     }
 }
+@media (min-width: 1931px) {
+/*@media (min-width: 1200px) { */
+    #footer-content #player-bar {
+        /*height: 90px;*/
+        bottom: 0;
+        background: 0 0;
+    }
+}
 /* ----- changed end ----- */
-@media (min-width: 992px) and (max-width: 1199px) {
-    #footer-content #player-bar.playback-bar {
-        height: 90px;
-    }
-}
-@media (min-width: 1200px) {
-    #footer-content #player-bar.playback-bar {
-        height: 90px;
-    }
-}
-@media (min-width: 992px) and (max-width: 1199px) {
-    #footer-content #player-bar {
-        height: 90px;
-        bottom: 0;
-        background: 0 0;
-    }
-}
-@media (min-width: 1200px) {
-    #footer-content #player-bar {
-        height: 90px;
-        bottom: 0;
-        background: 0 0;
-    }
-}
 #footer-content #player-bar > .row {
     height: 100%;
 }
@@ -9423,25 +9490,30 @@ img.filetype-description {
 		padding-top: 1px;
 	}
 }
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape) and (max-width: 1930px) {
 	#footer-content #player-bar .track-info-container {
 		width: 62%;
 		left: 12%;
 		margin-top: -2px;
 	}
 }
+@media (orientation: landscape) and (min-width: 992px) and (max-width: 1930px) {
+    #footer-content #player-bar .track-info-container {
+        padding-top: 4px;
+    }
+}
 #footer-content #player-bar .controls-container {
-	text-align: center;
-	height: var(--barshight);
-	bottom: 0;
-	position: relative;
+    text-align: center;
+    height: var(--barshight);
+    bottom: 0;
+    position: relative;
 }
 @media (orientation: portrait) and (max-width: 767px) {
 	#footer-content #player-bar .controls-container #playerButtons .playPauseBtnGreyWrapper{
 		top: -12px;
 	}
 }
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape) and (max-width: 1930px) {
 	#footer-content #player-bar .controls-container {
 		right: 64%;
 	}
@@ -9458,21 +9530,33 @@ img.filetype-description {
 		padding-left: 1px;
 	}
 }
+@media (orientation: landscape) and (min-width: 992px) and (max-width: 1930px) {
+    #footer-content #player-bar .controls-container {
+        /*bottom: -20px;
+        border-right: 1px solid #242424;
+        border-left: 1px solid #242424; */
+		top: 10px;
+		right: 63%;
+    }
+	#footer-content #player-bar .controls-container #playerButtons .playPauseBtnGreyWrapper{
+		height: 48px;
+		width: 48px;
+		top: -19px;
+	}
+	#footer-content #player-bar .controls-container #playerButtons .playPause{
+		height: 48px;
+		width: 48px;
+	}
+}
+@media (min-width: 1931px) {
+    #footer-content #player-bar .controls-container {
+        bottom: -20px;
+        border-right: 1px solid #242424;
+        border-left: 1px solid #242424;
+		top: 10px;
+    }
+}
 /* ----- changed end ----- */
-@media (min-width: 992px) and (max-width: 1199px) {
-    #footer-content #player-bar .controls-container {
-        bottom: -20px;
-        border-right: 1px solid #242424;
-        border-left: 1px solid #242424;
-    }
-}
-@media (min-width: 1200px) {
-    #footer-content #player-bar .controls-container {
-        bottom: -20px;
-        border-right: 1px solid #242424;
-        border-left: 1px solid #242424;
-    }
-}
 #footer-content #player-bar .controls-container player-seekbar {
     display: block;
     position: absolute;
@@ -9480,7 +9564,7 @@ img.filetype-description {
     width: 100%;
 }
 /* ----- changed begin new footer ----- */
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape) and (max-width: 1930px) {
 	#footer-content #player-bar .volume-container {
 		left: -10%;
 		top: -16px;
@@ -9488,7 +9572,14 @@ img.filetype-description {
 		background-color: transparent;
 	}
 }
-/* ----- changed end ----- */	
+@media (orientation: landscape) and (min-width: 992px) and (max-width: 1930px) {
+	#footer-content #player-bar .volume-container {
+		left: -3%;
+		top: -4px;
+		width: 5%;
+	}
+}
+/* ----- changed end ----- */
 #footer-content #player-bar .volume-container .volume-slider {
     margin-top: 28px;
 }
@@ -9599,8 +9690,17 @@ div#queueOutputButtonsContainer {
 	padding-bottom: calc(70px + 70px); 
 }
 /* ----- changed begin new footer enlarge main container to button ----- */
+#layout-container .main-container { 
+    backdrop-filter: var(--bgfilter);
+    -webkit-backdrop-filter: var(--bgfilter);
+}
+@media (orientation: landscape) {
+	#layout-container .main-container {
+		padding-bottom: var(--barshight);
+	}
+}
 #layout-container .main-container.with-playback-bar {
-	padding-bottom: var(--barshight);
+    padding-bottom: var(--barshight);
 }
 /* GUI_ID: 200 - changed from GUI*/
 @media (orientation: landscape) and (max-width: 0px) {
@@ -9608,6 +9708,11 @@ div#queueOutputButtonsContainer {
         padding-bottom: 0;
     }
 }
+/*@media (min-width: 992px) and (max-width: 1930px) {
+    #layout-container .main-container {
+        padding-bottom: calc(70 + 70px);
+    }
+}*/
 @media (orientation: landscape) {
     #layout-container .main-container.with-playback-bar {
 /* GUI_ID: 201 - changed from GUI*/
@@ -9617,28 +9722,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
        background-repeat: no-repeat;
     }
 }
-@media (max-width: 991px) {
-	#layout-container .main-container { 
-        backdrop-filter: var(--bgfilter);
-        -webkit-backdrop-filter: var(--bgfilter);
-	}
-}
-@media (orientation: landscape) and (max-width: 991px) {
-	#layout-container .main-container {
-		padding-bottom: var(--barshight); 
-	}
-}
 /* ----- changed end ----- */
-@media (min-width: 992px) and (max-width: 1199px) {
-    #layout-container .main-container {
-        padding-bottom: calc(90px);
-    }
-}
-@media (min-width: 1200px) {
-    #layout-container .main-container {
-        padding-bottom: calc(90px);
-    }
-}
 #layout-container .main-container #main-menu-container {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -9675,7 +9759,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     background-color: rgba(9, 9, 9, 1);
     z-index: 10;
 }
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape) and (max-width: 1930px) {
 	#layout-container #footer-container {
 		bottom: -1px;
 		background-color:  transparent;
@@ -9683,8 +9767,8 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 }
 #content::-webkit-scrollbar {
     width: var(--scrollbarwidth);
-}
 /* ----- changed end ----- */
+}
 #content::-webkit-scrollbar-track {
     background: #333;
     border-radius: 0;
@@ -9695,22 +9779,27 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 }
 /* ----- changed begin new footer ----- */
 .tabBar {
-	height: var(--barshight);
-	background-color: transparent; /* #090909; */
+    height: var(--barshight);
+	background-color: #090909;
+}
+@media (orientation: landscape) and (max-width: 1930px) {
+	.tabBar {
+		background-color: transparent;
+	}
 }
 .tabBar button.tab-bar-btn {
-	position: relative;
-	float: left;
-	width: 33.33333%;
-	min-height: 1px;
-	padding-left: 0;
-	padding-right: 0;
-	font-size: 18px;
-	border-radius: 0 !important;
-	border: none !important;
-	height: var(--barshight);
+    position: relative;
+    float: left;
+    width: 33.33333%;
+    min-height: 1px;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 18px;
+    border-radius: 0 !important;
+    border: none !important;
+    height: var(--barshight);
 }
-@media (orientation: landscape) and (max-width: 991px) {
+@media (orientation: landscape)  and (max-width: 1930px) {
 	#footer-content #tab-bar .tabBar {
 		position: absolute;
 		left: 81%;
@@ -9719,6 +9808,11 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 	}
 	#footer-content #tab-bar .tabBar button.tab-bar-btn span.label {
 		display: none;
+	}
+}
+@media (orientation: landscape) and (min-width: 992px) {
+	#footer-content #tab-bar .tabBar {
+		margin-top: -70px;
 	}
 }
 /* ----- changed end ----- */
@@ -9734,16 +9828,14 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     height: 35px;
     text-align: right;
 }
-@media (min-width: 992px) and (max-width: 1199px) {
+/* ----- changed begin extended mobile ----- */
+@media (min-width: 1931px) {
+/*@media (min-width: 1200px) {*/
     #playQueue .trackInfoBarButtons {
         width: 83.33333%;
     }
 }
-@media (min-width: 1200px) {
-    #playQueue .trackInfoBarButtons {
-        width: 83.33333%;
-    }
-}
+/* ----- changed end ----- */
 @media (max-width: 767px) {
     #playQueue .trackInfoBarButtons {
         text-align: center;
@@ -9895,7 +9987,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     background: rgba(0, 0, 0, var(--bgdarkness));
     backdrop-filter: var(--bgfilterplay);
     -webkit-backdrop-filter: var(--bgfilterplay);
-}
+} 
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile {
 		flex-direction: row !important;
@@ -9926,7 +10018,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 		margin: 10px;
 	}
 }
-/* ----- changed end ----- */	
+/* ----- changed end ----- */
 #playbackPanelWrapper.mobile #albumartContainer .cover-art-container {
     text-align: center;
     scrollbar-width: none;
@@ -9945,13 +10037,14 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     margin: auto;
     max-height: 100%;
     max-width: 100%; /* for border */
-	/* width: 100%; */
+	width: 100%;
     -o-object-fit: contain;
     object-fit: contain;
 }
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile #albumartContainer .cover-art-container img {
 		width: 100%;
+        height: 100%;
 	}
 }
 /* ----- changed end ----- */
@@ -9975,11 +10068,28 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 @media (orientation: landscape){
     #playbackPanelWrapper.mobile .track-info-container {
 		margin-top: var(--tinfoY);
-		/*margin-left: 4px;
-		left: var(--tinfoX); 
-		width: var(--tinfoW); */
+		/*margin-left: 1vw;
+		left: var(--tinfoX);
+		width: var(--tinfoW);*/
     }
 }
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+    #playbackPanelWrapper.mobile .track-info-container {
+		margin-top: var(--tinfoY2);
+		padding-bottom: 20px;
+    }
+}
+@media (orientation: landscape) and (min-width: 1601px){
+    #playbackPanelWrapper.mobile .track-info-container {
+		margin-top: var(--tinfoY3);
+		padding-bottom: 20px;
+    }
+}
+/*@media all and (max-height: 500px) {
+    #playbackPanelWrapper.mobile .track-info-container {
+        margin-top: 4px;
+    }
+}*/
 @media (orientation: portrait){
 	#playbackPanelWrapper.mobile .track-info-rates {
 		font-size: 11px;
@@ -9993,19 +10103,45 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 		margin-top: 2px;
 		margin-left: 1px;
 		margin-right: 1px;
-		/*left: var(--tinfoX);
-		width: var(--tinfoW); */
+	}
+}
+@media (orientation: landscape) and (max-width: 1199px){
+	#playbackPanelWrapper.mobile .track-info-rates {
 		font-size: var(--srate);
 		margin-top: var(--sratespace);
 	}
 }
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+	#playbackPanelWrapper.mobile .track-info-rates {
+		font-size: var(--srate2);
+		margin-top: var(--sratespace2);
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px){
+	#playbackPanelWrapper.mobile .track-info-rates {
+		font-size: var(--srate3);
+		margin-top: var(--sratespace3);
+		padding-bottom: 20px;
+	}
+}
 #playbackPanelWrapper.mobile .track-info-rates .track-info-type {
-	margin-top: 15px;
-	font-size: 14px;
+    margin-top: 15px;
+    font-size: 14px;
 }
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile .track-info-rates .track-info-type {
 		font-size: calc(10px + var(--srate));
+	}
+}
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+	#playbackPanelWrapper.mobile .track-info-rates .track-info-type {
+		margin-top: 15px;
+		font-size: calc(10px + var(--srate2));
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px){
+	#playbackPanelWrapper.mobile .track-info-rates .track-info-type {
+		font-size: calc(10px + var(--srate3));
 	}
 }
 #playbackPanelWrapper.mobile .track-info-rates .track-info-type img {
@@ -10014,7 +10150,26 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 }
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile .track-info-rates .track-info-type img {
-		max-width: calc(18px + (var(--srate)/2));
+		/*max-width: calc(18px + (var(--srate)/2));*/
+        height: calc(var(--srate) * 0.75);
+        max-width: unset;
+        vertical-align: unset;
+	}
+}
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+	#playbackPanelWrapper.mobile .track-info-rates .track-info-type img {
+		/*max-width: calc(18px + (var(--srate2)/2));*/
+        height: calc(var(--srate2) * 0.75);
+        max-width: unset;
+        vertical-align: unset;
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px){
+	#playbackPanelWrapper.mobile .track-info-rates .track-info-type img {
+		/*max-width: calc(18px + (var(--srate3)/2));*/
+        height: calc(var(--srate3) * 0.75);
+        max-width: unset;
+        vertical-align: unset;
 	}
 }
 /* ----- changed end ----- */
@@ -10025,18 +10180,34 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 #playbackPanelWrapper.mobile .track-button-container {
 	text-align: center;
 }
-/* ----- changed begin new playbackpanel landscape ----- 
-@media (orientation: landscape){
-	#playbackPanelWrapper.mobile .track-button-container {
-		left: var(--tinfoX);
-		width: var(--tinfoW);
-	}
-}*/
-@media (orientation: landscape){
+@media (orientation: landscape) and (max-width: 1199px){
     #playbackPanelWrapper.mobile .track-button-container {
 		margin-top: calc(-10px + var(--sratespace)/3);
 	}
 }
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+    #playbackPanelWrapper.mobile .track-button-container {
+		margin-top: calc(-10px + var(--sratespace2)/3);
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px){	
+    #playbackPanelWrapper.mobile .track-button-container {
+		margin-top: calc(-10px + var(--sratespace3)/3);
+	}
+}
+/* ----- changed begin new playbackpanel landscape ----- */
+/*@media (orientation: landscape){
+	#playbackPanelWrapper.mobile .track-button-container {
+		left: var(--tinfoX);
+		width: var(--tinfoW);
+	}
+}
+@media (orientation: landscape) and (min-width: 1200px){
+	#playbackPanelWrapper.mobile .track-button-container {
+		left: var(--tinfoX2);
+		width: var(--tinfoW2);
+	}
+}*/
 /* ----- changed end ----- */
 #playbackPanelWrapper.mobile .track-button-container #trackButtonBar {
     display: inline-block;
@@ -10048,7 +10219,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
         display: var(--trackbtn);
     }
 }
-/* ----- changed end ----- */
+/* ----- changed end ----- */    
 @media all and (max-height: 400px) {
     #playbackPanelWrapper.mobile .track-button-container button {
         padding: 0 8px;
@@ -10065,10 +10236,16 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 	margin-top: 12px;
 }
 /* ----- changed begin new playbackpanel landscape ----- */
-/* @media (orientation: landscape){
+/*@media (orientation: landscape){
 	#playbackPanelWrapper.mobile .player-buttons-container {
 		left: var(--tinfoX);
 		width: var(--tinfoW);
+	}
+}
+@media (orientation: landscape) and (min-width: 1200px){
+	#playbackPanelWrapper.mobile .player-buttons-container {
+		left: var(--tinfoX2);
+		width: var(--tinfoW2);
 	}
 }*/
 #playbackPanelWrapper.mobile .player-buttons-container #playerButtons {
@@ -10081,6 +10258,7 @@ background-image: url(../../../../backgrounds/dvo.jpg);
         display: var(--playbtn);
     }
 }
+/* ----- changed end ----- */
 @media all and (max-height: 400px) {
     #playbackPanelWrapper.mobile .player-buttons-container #playerButtons {
         height: 50px;
@@ -10093,7 +10271,6 @@ background-image: url(../../../../backgrounds/dvo.jpg);
         font-size: 14px;
     }
 }
-/* ----- changed end ----- */
 /* ----- changed begin new playbackpanel landscape ----- */
 @media (orientation: portrait){
 	#playbackPanelWrapper.mobile .player-buttons-container #playerButtons .playPause {
@@ -10104,10 +10281,9 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 @media (orientation: landscape){
 	#playbackPanelWrapper.mobile .player-buttons-container #playerButtons .playPause {
 		left: 0 !important;
-		/* top: -10px; */
+		/* top: -25px; */
 	}
 }
-
 @media all and (max-height: 400px) {
     #playbackPanelWrapper.mobile .player-buttons-container #playerButtons .playPause {
         height: 44px;
@@ -10136,10 +10312,50 @@ background-image: url(../../../../backgrounds/dvo.jpg);
 /* GUI_ID: 203 - changed from GUI*/
 		padding-left: calc((15px + var(--aaspaceX)/2) + var(--tinfoleft)/2);
 		/*left: var(--tinfoX);
-		width: var(--tinfoW); */
-        margin-top: calc(-5px + var(--sratespace)/3);
+		width: var(--tinfoW);*/
     }
 }
+@media (orientation: landscape) and (max-width: 1199px){
+    #playbackPanelWrapper .player-seekbar-container {
+		margin-top: calc(-5px + var(--sratespace)/3);
+	}
+}
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+    #playbackPanelWrapper .player-seekbar-container {
+		margin-top: calc(-5px + var(--sratespace2)/3);
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px){	
+    #playbackPanelWrapper .player-seekbar-container {
+		margin-top: calc(-5px + var(--sratespace3)/3);
+	}
+}
+/*@media (orientation: landscape) and (min-width: 1200px){
+    #playbackPanelWrapper .player-seekbar-container {
+		left: var(--tinfoX2);
+		width: var(--tinfoW2);
+	}
+}*/
+/*
+@media (orientation: landscape) and (min-width: 768px){
+    #playbackPanelWrapper .player-seekbar-container {
+		margin-bottom: 4px;
+		left: calc(33.333vw);
+		width: 50%;
+    }
+}
+@media (orientation: landscape) and (max-width: 768px){
+    #playbackPanelWrapper .player-seekbar-container {
+		margin-bottom: 4px;
+		left: calc(46vw);
+		width: 50%;
+    }
+}*/
+/*@media all and (max-height: 500px) {
+    #playbackPanelWrapper .player-seekbar-container {
+        margin-bottom: 4px;
+    }
+}*/
 /* ----- change end ------ */
 i#closePlaybackPanelWrapper {
     font-size: 48px;
@@ -10147,7 +10363,7 @@ i#closePlaybackPanelWrapper {
 }
 div#goBackPanelWrapper {
     top: -10px;
-	max-height: 30px;
+    max-height: 30px;
     z-index: 4;
 }
 /* ----- changed begin GoBack button landscape ----- */
@@ -10519,7 +10735,7 @@ div#source-active {
     margin-bottom: 12px;
     padding-bottom: 100%;
     background: rgba(0, 0, 0, 0.6);
-	box-shadow: 3px 3px 10px rgba(0, 0, 0, calc(0.8 * var(--aashadow))); 
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, calc(0.8 * var(--aashadow)));
 	border: calc(1px * var(--border)) solid rgba(var(--bordercolor), 0.7);
 	border-radius: calc(3% * var(--bordercorner));
 }
@@ -11050,29 +11266,26 @@ span.static-source-icon.ng-scope {
         margin-left: calc(1px * (8 + var(--buttons)));
         margin-right: calc(1px * (8 + var(--buttons)));
     }
-}
-@media (min-width: 992px) and (max-width: 1199px) {
+}	
+@media (min-width: 1931px) {
+/*@media (min-width: 1200px) {*/
     #playerButtons {
         height: 50px;
     }
 }
-@media (min-width: 1200px) {
-    #playerButtons {
-        height: 50px;
-    }
-}
+/* ----- changed end ----- */
 #playerButtons .playPauseBtnWrapper {
-	position: relative;
-	display: inline-block;
-	width: 55px;
+    position: relative;
+    display: inline-block;
+    width: 55px;
 }
 #playerButtons .playPauseBtnGreyWrapper {
-	position: absolute;
-	margin: auto;
-	border-radius: 100px;
-	height: 55px;
-	width: 55px;
-	top: calc(-1 * (70px - 55px) / 2);
+    position: absolute;
+    margin: auto;
+    border-radius: 100px;
+    height: 55px;
+    width: 55px;
+    top: calc(-1 * (70px - 55px) / 2);
 }
 /* ----- changed begin smaller Player Bar ----- */
 @media (orientation: landscape) and (max-width: 991px) {
@@ -11083,28 +11296,35 @@ span.static-source-icon.ng-scope {
 	}
 }
 /* ----- changed end ----- */
-@media (min-width: 992px) and (max-width: 1199px) {
+/* ----- changed begin extended mobile ----- */
+@media (min-width: 992px) and (max-width: 1930px) {
+    #playerButtons .playPauseBtnGreyWrapper {
+        top: -20px;
+    }
+}	
+/*@media (min-width: 992px) and (max-width: 1199px) {
     #playerButtons .playPauseBtnGreyWrapper {
         top: -35px;
     }
-}
-@media (min-width: 1200px) {
+}*/
+@media (min-width: 1931px) {
     #playerButtons .playPauseBtnGreyWrapper {
-        top: -35px;
+        top: -30px;
     }
 }
+/* ----- changed end ----- */
 #playerButtons .playPause {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	margin: auto;
-	border: solid 2px transparent;
-	background-color: rgba(255, 255, 255, 0.3);
-	height: 55px;
-	width: 55px;
-	border-radius: 100px;
-	left: 15px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    border: solid 2px transparent;
+    background-color: rgba(255, 255, 255, 0.3);
+    height: 55px;
+    width: 55px;
+    border-radius: 100px;
+    left: 15px;
 }
 /* ----- changed begin smaller Player Bar ----- */
 @media (orientation: landscape) and (max-width: 991px) {
@@ -11122,18 +11342,21 @@ span.static-source-icon.ng-scope {
 #playerButtons .playPause.play i {
     padding-left: 4px;
 }
-@media (min-width: 992px) and (max-width: 1199px) {
+/* ----- changed begin extended mobile ----- */
+/*@media (min-width: 992px) and (max-width: 1199px) { */
+@media (min-width: 992px) and (max-width: 1930px) {
     #playerButtons .playPause {
         left: 0;
         right: 0;
     }
 }
-@media (min-width: 1200px) {
+@media (min-width: 1931px) {
     #playerButtons .playPause {
         left: 0;
         right: 0;
     }
 }
+/* ----- changed end ----- */
 /* ----- changed begin trackinfo player buttons ----- */
 @media (orientation: landscape) and (min-height: 401px){
 	.col-xs-24.player-buttons-container #playerButtons #next-button,
@@ -11177,7 +11400,7 @@ span.static-source-icon.ng-scope {
 /* ----- changed begin trackinfo player buttons ----- */
 @media all and (max-height: 400px) {
     #playerButtons .repeat-button i {
-        padding-top: 8px;
+        padding-top: 10px;
     }
 }
 /* ----- changed end ----- */
@@ -11448,22 +11671,45 @@ span.static-source-icon.ng-scope {
 }
 @media (orientation: landscape) {
 	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-title {
-		font-size: var(--title601);
+		font-size: var(--title);
 	}
 }
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-title {
+        font-size:  var(--title2);
+    }
+}
+@media (orientation: landscape) and (min-width: 1601px) {
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-title {
+        font-size:  var(--title3);
+    }
+}
+/*
 @media (orientation: landscape) and (max-height: 600px) {
 	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-title {
         font-size: var(--title600);
     }
-}
-@media (orientation: landscape) and (max-width: 991px) {
+}*/
+@media (orientation: landscape){
 	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-album,
 	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-artist {
 		font-size: var(--artist);
 	}
 }
+@media (orientation: landscape) and (min-width: 1200px) and (max-width: 1600px){
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-album,
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-artist {
+		font-size: var(--artist2);
+	}
+}
+@media (orientation: landscape) and (min-width: 1601px) {
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-album,
+	.col-xs-24.text-center.track-info-container #trackInfo-compact #trackInfo-artist-album #trackInfo-artist {
+		font-size: var(--artist3);
+	}
+}
 #trackInfo-compact .text-with-dots {
-	display: block;
+    display: block;
     max-width: 98%;
     /* white-space: nowrap; */
     overflow: hidden !important;
@@ -11484,7 +11730,7 @@ span.static-source-icon.ng-scope {
 }
 @media all and (max-height: 600px) {
     #trackInfo-compact #trackInfo-title {
-        font-size: 16px
+        font-size: 16px;
     }
 }
 #trackInfo-compact #trackInfo-artist-album {
@@ -11495,12 +11741,14 @@ span.static-source-icon.ng-scope {
 #trackInfo-compact #trackInfo-artist-album #trackInfo-artist {
     font-size: 14px;
     font-weight: 300;
-}	
+}
+/* ----- changed begin new footer ----- */
 @media (min-width: 992px) and (max-width: 1199px) {
     #trackInfo-compact #trackInfo-artist-album #trackInfo-album,
     #trackInfo-compact #trackInfo-artist-album #trackInfo-artist {
-        font-size: 15px; /* 18px; */
+        font-size: 16px; /* 18px; */
     }
+/* ----- changed end ----- */
 }
 @media (min-width: 1200px) {
     #trackInfo-compact #trackInfo-artist-album #trackInfo-album,
@@ -11690,10 +11938,10 @@ volume-manager .volumeManager {
 	volume-manager .volumeManager {
 		position: absolute;
 		top: 0;
-		left: 20%;
+		left: 40%;
 	}
 }
-/* ----- changed end ----- */
+/* ----- changed end ----- */	
 volume-manager .volumeManager .volumeSliderWrapper {
     pointer-events: none;
     position: absolute;
@@ -11717,6 +11965,12 @@ volume-manager .volumeManager .volumeSliderWrapper .bigText {
     font-size: 28px;
     padding-top: 10px;
 }
+volume-manager .volumeManager .volumeSliderWrapper .dbVolumeText {
+    margin-top: 8px;
+    color: #54c688;
+    font-size: 16px;
+    height: 22px;
+}
 volume-manager .volumeManager.on-footer {
     margin-top: 0;
 }
@@ -11727,16 +11981,14 @@ volume-manager .volumeManager.on-footer #openVolumeVerticalSlider {
 volume-manager .volumeManager.on-footer #openVolumeVerticalSlider i {
     font-size: 2em;
 }
-@media (min-width: 992px) and (max-width: 1199px) {
+/* ----- changed begin extended mobile ----- */
+@media (min-width: 1931px) {
+/*@media (min-width: 1200px) {*/
     volume-manager .volumeManager.on-footer #openVolumeVerticalSlider i {
         font-size: inherit;
     }
 }
-@media (min-width: 1200px) {
-    volume-manager .volumeManager.on-footer #openVolumeVerticalSlider i {
-        font-size: inherit;
-    }
-}
+/* ----- changed end ----- */
 volume-manager .volumeSliderScrim {
     width: 100%;
     height: 100vh;

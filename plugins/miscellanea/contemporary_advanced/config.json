@@ -4,6 +4,8 @@
   "forecolor_title":{"value":"green","type":"string"},
   "colorCustom":{"value":"#54C688","type":"color"},
   "bgdarkness":{"value":"0.4","type":"string"},
+  "bgkfilterplay":{"value":false,"type":"boolean"},
+  "bgkfilter":{"value":false,"type":"boolean"},
   "ftopacity":{"value":"0.4","type":"string"},
   "fthide":{"value":false,"type":"boolean"},
   "btnbarhide":{"value":false,"type":"boolean"},
