@@ -2,6 +2,11 @@
 With this plugin some optimizations for VOLUMIO UI are available
 
 -----
+##### Version: 1.0.5
+
+* fix little graphical issue on dedicated searchbar (mod 2)
+* fix blur background if separate background picture for play view selected
+
 ##### Version: 1.0.4
 
 * compatibility with buster 3.163

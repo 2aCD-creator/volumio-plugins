@@ -9374,6 +9374,10 @@ background-image: url(../../../../backgrounds/dvo.jpg);
     height: 100%;
     overflow-y: visible;
     overflow-x: visible;
+/* ----- changed begin blur filter for custom background ----- */
+    backdrop-filter: var(--bgfilter);
+    -webkit-backdrop-filter: var(--bgfilter);
+/* ----- changed end ----- */
 }
 #layout-container .main-container #contentWrapper .content-top-bar {
     height: 50px;
