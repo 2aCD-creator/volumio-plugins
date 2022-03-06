@@ -2,6 +2,9 @@
 With this plugin some optimizations for VOLUMIO UI are available
 
 -----
+##### Version: 1.0.6
+* compatibility with buster 3.233
+
 ##### Version: 1.0.5
 
 * fix little graphical issue on dedicated searchbar (mod 2)
