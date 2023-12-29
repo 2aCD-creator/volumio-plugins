@@ -1,0 +1,40 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+                {
+                "id": "peppymeter_conf",
+                "element": "section",
+                "label": "TRANSLATE.TEST.PEPPYMETER_CONF",
+                "description": "TRANSLATE.TEST.PEPPYMETER_DESC",
+                "icon": "fa-clock-o",
+                "hidden": "false",
+                "onSave": {"type":"controller", "endpoint":"miscellanea/peppy_screensaver", "method":"savePeppyMeterConf"},
+                "saveButton": {
+                              "label": "TRANSLATE.TEST.APPLY",
+                              "data": [
+                                      "timeout"
+
+                                      ]
+                              },
+                "content": [
+                            {
+                             "id": "timeout",
+                             "element": "input",
+                             "type": "number",
+                             "doc": "TRANSLATE.TEST.TIMEOUT_DOC",
+                             "label": "TRANSLATE.TEST.TIMEOUT",
+                             "attributes": [
+                                             {"placeholder": 15},
+                                             {"maxlength": 2},
+                                             {"min": 5},
+                                             {"max": 3600}
+                                           ],
+                             "value": 15
+                            }
+                            ]
+                }
+
+ 		 ]
+}
