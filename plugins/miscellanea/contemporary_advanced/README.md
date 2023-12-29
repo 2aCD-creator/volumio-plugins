@@ -2,6 +2,9 @@
 With this plugin some optimizations for VOLUMIO UI are available
 
 -----
+##### Version: 1.0.7
+* compatibility with buster 3.569
+
 ##### Version: 1.0.6
 * compatibility with buster 3.233
 
