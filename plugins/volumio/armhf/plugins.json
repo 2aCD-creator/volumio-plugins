@@ -1,8 +1,8 @@
 {
 	"categories": [
 		{
-			"prettyName": "miscellanea",
-			"name": "miscellanea",
+			"prettyName": "user_interface",
+			"name": "user_interface",
 			"id": "cat1",
 			"description": "",
 			"plugins": [
@@ -29,7 +29,7 @@
 					"icon": "fa-lightbulb-o",
 					"name": "contemporary_advanced",
 					"version": "1.0.7",
-					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/miscellanea/contemporary_advanced/contemporary_advanced.zip",
+					"url": "http://volumio.github.io/volumio-plugins/plugins/volumio/armhf/user_interface/contemporary_advanced/contemporary_advanced.zip",
 					"license": "ISC",
 					"description": "advanced Contemporary configuration",
 					"details": "advanced Contemporary configuration",
@@ -40,7 +40,7 @@
 							"thumb": ""
 						}
 					],
-					"updated": "6-3-2022"
+					"updated": "29-12-2023"
 				}
 			]
 		}
