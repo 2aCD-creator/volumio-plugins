@@ -9,7 +9,7 @@ echo "Installing contemporary advanced Dependencies"
 #DPKG_ARCH=`dpkg --print-architecture`
 # Then use it to differentiate your install
 
-dest_path=/data/plugins/miscellanea/contemporary_advanced
+dest_path=/data/plugins/user_interface/contemporary_advanced
 
 www3=/volumio/http/www3
 ID=$(ls ${www3}/styles/app-*.css)

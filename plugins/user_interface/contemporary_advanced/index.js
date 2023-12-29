@@ -12,7 +12,7 @@ const id = 'contemporary_advanced: ';
 const indexfile = '/volumio/http/www3/index.html';
 const StylesPath = '/volumio/http/www3/styles';
 const MPDindex = '/volumio/app/plugins/music_service/mpd/index.js';
-const MPD = '/data/configuration/miscellanea/contemporary_advanced/MPDindex.js';
+const MPD = '/data/configuration/user_interface/contemporary_advanced/MPDindex.js';
 const fstab = '/etc/fstab';
 
 var scalemem = 0;
@@ -99,7 +99,7 @@ contemporaryAdvanced.prototype.onStart = function() {
         defer.resolve();    
     } else {                                 
         setTimeout(function () {            
-            self.commandRouter.pluginManager.disableAndStopPlugin ('miscellanea','contemporary_advanced');
+            self.commandRouter.pluginManager.disableAndStopPlugin ('user_interface','contemporary_advanced');
             self.commandRouter.reloadUi();    
         }, 500);
         setTimeout(function () {
@@ -800,7 +800,7 @@ contemporaryAdvanced.prototype.updateUIConfig = function () {
   const self = this;
   const defer = libQ.defer();
 
-  self.commandRouter.getUIConfigOnPlugin('miscellanea', 'contemporary_advanced', {})
+  self.commandRouter.getUIConfigOnPlugin('user_interface', 'contemporary_advanced', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });
@@ -942,8 +942,8 @@ contemporaryAdvanced.prototype.setAlbumartist = function (MPD) {
 '/var safeGenreArtist = genreArtist.replace(/a              \
 \\/\\/---> insert\\n\
   var genreIndex_1, genreIndex_2, listIndex_0, listIndex_1;\\n\
-  var sortGenre = self.commandRouter.executeOnPlugin(\\x27miscellanea\\x27, \\x27contemporary_advanced\\x27, \\x27getConfigParam\\x27, \\x27sortalbumartist\\x27);\\n\
-  var showalbumart = self.commandRouter.executeOnPlugin(\\x27miscellanea\\x27, \\x27contemporary_advanced\\x27, \\x27getConfigParam\\x27, \\x27showalbumart\\x27);\\n\
+  var sortGenre = self.commandRouter.executeOnPlugin(\\x27user_interface\\x27, \\x27contemporary_advanced\\x27, \\x27getConfigParam\\x27, \\x27sortalbumartist\\x27);\\n\
+  var showalbumart = self.commandRouter.executeOnPlugin(\\x27user_interface\\x27, \\x27contemporary_advanced\\x27, \\x27getConfigParam\\x27, \\x27showalbumart\\x27);\\n\
   if (sortGenre){\\n\
     genreIndex_1 = \\x27COMMON.ARTISTS\\x27;\\n\
     genreIndex_2 = \\x27COMMON.ALBUMS\\x27;\\n\
