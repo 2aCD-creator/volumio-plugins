@@ -1,7 +1,0 @@
-{
-  "timeout": {
-    "value":"60",
-    "type":"number"
-  }
- 
-}
