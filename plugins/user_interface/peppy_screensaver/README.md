@@ -1,0 +1,47 @@
+## PeppyScreensaver
+PeppyMeter as screensaver for Volumio on raspberry pi
+>Many thanks to peppy.player, who provided the conditions for this
+
+-----
+##### Version 1.4.0
+* better compatibility with FusionDSP
+* Spotify now with FusionDSP working
+* add an external folder for meter templates (/data/INTERNAL/peppy_screensaver/templates)
+* add an option to switch displayport:0 to 1 (Volumio Primo)
+
+##### Version 1.3.9 Beta
+* now compatibel with fusionDSP
+* add new random mode to change meters randomly, when a new song begins
+* add new optional config entries in meter.txt
+   for separate color:
+	playinfo.title.color
+	playinfo.artist.color
+	playinfo.album.color
+   for separate maxwidth:
+	playinfo.title.maxwidth
+	playinfo.artist.maxwidth
+	playinfo.album.maxwidth
+   for separate aligment of title, artist, album and the rest
+	playinfo.text.center
+* add the possibility to use a masked albumart with a grayscaled jpg image
+	albumart.mask
+* fix missing pictures for filetype (mp3, flac, tidal...)
+ 
+##### Version: 1.3.1
+
+* conform with buster 3.569
+
+##### Version: 1.3.0
+
+* add resolution 1280x720
+
+##### Version: 1.2.0
+
+* add resolution 1920x 480
+* prepare the plugin to allow a volumio system update if the plugin deactivated
+
+##### Version 1.0.0
+
+* initial version
+
+ 

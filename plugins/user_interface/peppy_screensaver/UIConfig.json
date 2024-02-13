@@ -1,0 +1,229 @@
+{
+  "page": {
+    "label": "TRANSLATE.PEPPY_SCREENSAVER.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+                {
+                "id": "peppymeter_conf",
+                "element": "section",
+                "label": "TRANSLATE.PEPPY_SCREENSAVER.PEPPYMETER_CONF",
+                "description": "TRANSLATE.PEPPY_SCREENSAVER.PEPPYMETER_DESC",
+                "icon": "fa-gears",
+                "hidden": false,
+                "onSave": {"type":"controller", "endpoint":"user_interface/peppy_screensaver", "method":"savePeppyMeterConf"},
+                "saveButton": {
+                              "label": "TRANSLATE.PEPPY_SCREENSAVER.APPLY",
+                              "data": [
+                                      "alsaSelection",
+                                      "useDSP",
+                                      "useSpotify",
+                                      "timeout",
+                                      "activeFolder",
+                                      "smoothBuffer",
+                                      "needleCache",
+                                      "mouseEnabled",
+                                      "displayOutput"
+                                      ]
+                              },
+                "content": [
+                            {
+                             "id": "alsaSelection",
+                             "element": "select",
+                             "visibleIf": {"field": "useDSP", "value": false},
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.ALSA_SELECTION_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.ALSA_SELECTION",
+                             "value": {"value": 0, "label": "TRANSLATE.PEPPY_SCREENSAVER.ALSA_SELECTION_0" },
+                               "options": [
+                                 {
+                                    "value": 0,
+                                    "label": "TRANSLATE.PEPPY_SCREENSAVER.ALSA_SELECTION_0"
+                                 },
+                                 {
+                                    "value": 1,
+                                    "label": "TRANSLATE.PEPPY_SCREENSAVER.ALSA_SELECTION_1"
+                                 }
+                               ]
+                            },
+                            {
+                             "id": "useDSP",
+                             "element": "switch",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.DSP_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.DSP",
+                             "value": false
+                            },
+                            {
+                             "id": "useSpotify",
+                             "element": "switch",
+                             "visibleIf": {"field": "useDSP", "value": false},
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.SPOTIFY_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.SPOTIFY",
+                             "value": false
+                            },
+
+                            {
+                             "id": "timeout",
+                             "element": "input",
+                             "type": "number",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.TIMEOUT_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.TIMEOUT",
+                             "attributes": [
+                                             {"placeholder": 15},
+                                             {"maxlength": 2},
+                                             {"min": 0},
+                                             {"max": 3600}
+                                           ],
+                             "value": 15
+                            },
+                            {
+                             "id": "activeFolder",
+                             "element": "select",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.ACTIVE_FOLDER_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.ACTIVE_FOLDER",
+                             "value": {"value": "480x320", "label": "BuildIn 480x320" },
+                               "options": [
+                                 {
+                                    "value": "320x240",
+                                    "label": "BuildIn 320x240"
+                                 },
+                                 {
+                                    "value": "480x320",
+                                    "label": "BuildIn 480x320"
+                                 },
+                                 {
+                                    "value": "800x480",
+                                    "label": "BuildIn 800x480"
+                                 },
+                                 {
+                                    "value": "1280x400",
+                                    "label": "BuildIn 1280x400"
+                                 }
+                               ]
+                            },
+                            {
+                             "id": "smoothBuffer",
+                             "element": "input",
+                             "type": "number",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.SMOOTH_BUFFER_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.SMOOTH_BUFFER",
+                             "attributes": [
+                                             {"placeholder": 8},
+                                             {"maxlength": 2},
+                                             {"min": 2},
+                                             {"max": 15}
+                                           ],
+                             "value": 8
+                            },
+                            {
+                             "id": "needleCache",
+                             "element": "switch",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.NEEDLE_CACHE_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.NEEDLE_CACHE",
+                             "value": true
+                            },
+                            {
+                             "id": "mouseEnabled",
+                             "element": "switch",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.MOUSE_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.MOUSE",
+                             "value": true
+                            },
+                            {
+                             "id": "displayOutput",
+                             "element": "select",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.DISPLAY_OUTPUT_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.DISPLAY_OUTPUT",
+                             "value": {"value": "0", "label": "Display :0" },
+                               "options": [
+                                 {
+                                    "value": "0",
+                                    "label": "Display=0"
+                                 },
+                                 {
+                                    "value": "1",
+                                    "label": "Display=1"
+                                 }
+                               ]
+                            }
+                            ]
+                },
+                {
+                "id": "VUmeter_conf",
+                "element": "section",
+                "label": "TRANSLATE.PEPPY_SCREENSAVER.VUMETER_CONF",
+                "description": "TRANSLATE.PEPPY_SCREENSAVER.VUMETER_DESC",
+                "icon": "fa-tachometer",
+                "hidden": false,
+                "onSave": {"type":"controller", "endpoint":"user_interface/peppy_screensaver", "method":"saveVUMeterConf"},
+                "saveButton": {
+                              "label": "TRANSLATE.PEPPY_SCREENSAVER.APPLY",
+                              "data": [
+                                      "meter",
+                                      "randomSelection",
+                                      "randomMode",
+                                      "randomInterval"
+                                      ]
+                              },
+                "content": [
+                            {
+                             "id": "meter",
+                             "element": "select",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.METER_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.METER",
+                             "value": {"value": "random", "label": "Random" },
+                               "options": [
+                                 {
+                                    "value": "random",
+                                    "label": "Random"
+                                 },
+                                 {
+                                    "value": "list",
+                                    "label": "List"
+                                 }
+                               ]
+                            },
+                            {
+                             "id": "randomSelection",
+                             "element": "input",
+                             "type": "string",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMSELECTION_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMSELECTION",
+                             "value": "",
+                             "visibleIf": {"field": "meter", "value": "list"}
+                            },
+                            {
+                             "id": "randomMode",
+                             "element": "select",
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMMODE_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMMODE",
+                             "hidden": true,
+                             "value": {"value": "titlechange", "label": "On Title Change" },
+                               "options": [
+                                 {
+                                    "value": "titlechange",
+                                    "label": "On Title Change"
+                                 },
+                                 {
+                                    "value": "interval",
+                                    "label": "Interval"
+                                 }
+                               ]
+                            },
+                            {
+                             "id": "randomInterval",
+                             "element": "input",
+                             "type": "number",
+                             "visibleIf": {"field": "randomMode", "value": "interval"},
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMINTERVAL_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.RANDOMINTERVAL",
+                             "attributes": [
+                                             {"placeholder": 60},
+                                             {"maxlength": 4},
+                                             {"min": 15},
+                                             {"max": 1000}
+                                           ],
+                             "value": 120
+                            }
+                            ]
+                }
+  ]
+}
