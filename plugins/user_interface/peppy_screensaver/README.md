@@ -3,6 +3,11 @@ PeppyMeter as screensaver for Volumio on raspberry pi
 >Many thanks to peppy.player, who provided the conditions for this
 
 -----
+##### Version 1.4.1
+* fix Spotify stops playing in combination of PeppyMeter and some USB-DAC's
+* now an external stop of PeppyMeter possible with deletion of /tmp/peppyrunning
+* it's possible now to set timeout to 0 - disable screensaver function
+  
 ##### Version 1.4.0
 * better compatibility with FusionDSP
 * Spotify now with FusionDSP working

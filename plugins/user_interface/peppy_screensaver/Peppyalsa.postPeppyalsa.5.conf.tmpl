@@ -18,7 +18,7 @@ pcm.${alsaMeter} {
 
     slaves.a.pcm "postpeppyalsa"
     slaves.a.channels 2
-    slaves.b.pcm "excl_peppyalsa"
+    slaves.b.pcm "mpd_peppyalsa"
     slaves.b.channels 2
 
     bindings.0 { slave a; channel 0; }
@@ -29,21 +29,11 @@ pcm.${alsaMeter} {
 }
 
 # ---> input from exclusive MPD output for peppyalsa
-pcm.mpd_peppyalsa {
-  type plug  
-  slave {
-    pcm "excl_peppyalsa"
-    format "S16_LE"
-  }
-}
-
-# standard peppyalsa meter definition
-pcm.excl_peppyalsa{
+pcm.mpd_peppyalsa{
 	type meter
 	slave.pcm "dummy"
 	scopes.0 peppyalsa
 }
-
 
 # standard scope
 pcm_scope.peppyalsa {
@@ -56,17 +46,17 @@ pcm_scope.peppyalsa {
 
 # ---> separate spotify pipeline
 pcm.spotify {
-  type plug  
+  type plug
   slave {
     pcm "spd_peppyalsa"
-    format "S16_LE"
+    format "S16_LE"   
   }
 }
 
 # spotify meter definition
 pcm.spd_peppyalsa{
 	type meter
-	slave.pcm "postpeppyalsa"
+	slave.pcm "spd_output"
 	scopes.0 peppyalsa_spd
 }
 
@@ -77,6 +67,12 @@ pcm_scope.peppyalsa_spd {
   meter "/tmp/myfifo"
   meter_max 150
   meter_show 0
+}
+
+# needed for some sound cards otherwiese Spotify stops playing after 10 seconds
+pcm.spd_output {
+  type copy
+  slave.pcm "postpeppyalsa"
 }
 # <---
 

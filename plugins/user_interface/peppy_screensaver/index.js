@@ -174,18 +174,20 @@ peppyScreensaver.prototype.onStart = function() {
         if (state.status === 'play' && !lastStateIsPlaying) {
           lastStateIsPlaying = true;
           var ScreenTimeout = (parseInt(self.config.get('timeout'),10)) * 1000;
-          Timeout = setInterval(function () {
-            if (!fs.existsSync(runFlag)){
-              exec( PeppyPath + 'run_peppymeter.sh', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {        
-                if (error !== null) {
+          
+          if (ScreenTimeout > 0){ // for 0 do nothing
+            Timeout = setInterval(function () {
+              if (!fs.existsSync(runFlag)){
+                exec( PeppyPath + 'run_peppymeter.sh', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {        
+                  if (error !== null) {
                     self.logger.error(id + 'Error start PeppyMeter: ' + error);
-                } else {
+                  } else {
                     self.logger.info(id + 'Start PeppyMeter');
-                }    
-              });
-            }        
-          }, ScreenTimeout);
-
+                  }    
+                });
+              }        
+            }, ScreenTimeout);
+          }
         } else if (state.status !== 'play' && lastStateIsPlaying) {
           clearTimeout(Timeout);
           lastStateIsPlaying = false;
@@ -729,6 +731,7 @@ peppyScreensaver.prototype.install_dummy = function () {
   
   try {
     execSync("/usr/bin/sudo /sbin/modprobe snd-dummy index=7 pcm_substreams=1", { uid: 1000, gid: 1000 });
+//    execSync("/usr/bin/sudo /sbin/modprobe snd-aloop", { uid: 1000, gid: 1000 });
     self.commandRouter.pushConsoleMessage('snd-dummy loaded');
     defer.resolve();
   } catch (err) {

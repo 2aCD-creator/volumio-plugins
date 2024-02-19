@@ -4,8 +4,10 @@
 # 
 
 import os
+import time
 import ctypes
 import resource
+import pygame as pg
 from pathlib import Path
 from threading import Thread
 
@@ -15,6 +17,8 @@ from volumio_random import RandomControl
 from datasource import DataSource, SOURCE_PIPE
 from configfileparser import BASE_PATH, DATA_SOURCE, TYPE, OUTPUT_DISPLAY
 from volumio_configfileparser import Volumio_ConfigFileParser
+
+PeppyRunning = '/tmp/peppyrunning'
 
 class CallBack:
     """ Implements CallBack functions to start and stop albumart animator """
@@ -62,8 +66,8 @@ class CallBack:
     def exit_trim_memory(self):
             
         # cleanup    
-        if os.path.exists('/tmp/peppyrunning'):
-            os.remove('/tmp/peppyrunning')
+        if os.path.exists(PeppyRunning):
+            os.remove(PeppyRunning)
                 
         del self.album_animator
         del self.util
@@ -106,7 +110,7 @@ if __name__ == "__main__":
     ctypes.CDLL('libX11.so.6').XInitThreads()
     
     # get the peppy meter object
-    pm = Peppymeter(standalone=True, timer_controlled_random_meter=False)
+    pm = Peppymeter(standalone=True, timer_controlled_random_meter=True)
 
     # parse additional volumio configuration values  
     #parser = Volumio_ConfigFileParser(pm.util.meter_config[BASE_PATH])
@@ -127,7 +131,8 @@ if __name__ == "__main__":
 
         memory_limit() # Limitates maximun memory usage
         try:
-            Path('/tmp/peppyrunning').touch()
+            Path(PeppyRunning).touch()
+            Path(PeppyRunning).chmod(0o0777)
         
             # start random control in separate thread
             Random_Control = RandomControl(pm.util, meter_config_volumio, pm.meter)
@@ -136,13 +141,19 @@ if __name__ == "__main__":
             # start meter output in separate thread
             meter_output = Thread(target = meter_thread, args=(pm, ))
             meter_output.start()
-                        
+
+            # stop if PeppyRunning deleted from external script
+            while os.path.exists(PeppyRunning):
+                time.sleep(1)
+            pg.event.post(pg.event.Event(pg.MOUSEBUTTONUP))
+
+            
         except MemoryError:
             print('ERROR: Memory Exception')
             callback.exit_trim_memory()
             del pm
             del callback
             trim_memory()            
-            if os.path.exists('/tmp/peppyrunning'):
-                os.remove('/tmp/peppyrunning')
+            if os.path.exists(PeppyRunning):
+                os.remove(PeppyRunning)
             os._exit(1)
