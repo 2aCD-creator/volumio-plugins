@@ -110,7 +110,7 @@ if __name__ == "__main__":
     ctypes.CDLL('libX11.so.6').XInitThreads()
     
     # get the peppy meter object
-    pm = Peppymeter(standalone=True, timer_controlled_random_meter=True)
+    pm = Peppymeter(standalone=True, timer_controlled_random_meter=False)
 
     # parse additional volumio configuration values  
     #parser = Volumio_ConfigFileParser(pm.util.meter_config[BASE_PATH])
