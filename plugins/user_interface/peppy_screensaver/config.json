@@ -7,6 +7,10 @@
     "value":false,
     "type":"boolean"
   },
+  "useAirplay":{
+    "value":false,
+    "type":"boolean"
+  },
   "useDSP":{
     "value":false,
     "type":"boolean"

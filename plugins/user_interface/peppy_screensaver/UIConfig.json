@@ -17,6 +17,7 @@
                                       "alsaSelection",
                                       "useDSP",
                                       "useSpotify",
+                                      "useAirplay",
                                       "timeout",
                                       "activeFolder",
                                       "smoothBuffer",
@@ -59,7 +60,14 @@
                              "label": "TRANSLATE.PEPPY_SCREENSAVER.SPOTIFY",
                              "value": false
                             },
-
+                            {
+                             "id": "useAirplay",
+                             "element": "switch",
+                             "visibleIf": {"field": "useDSP", "value": false},
+                             "doc": "TRANSLATE.PEPPY_SCREENSAVER.AIRPLAY_DOC",
+                             "label": "TRANSLATE.PEPPY_SCREENSAVER.AIRPLAY",
+                             "value": false
+                            },
                             {
                              "id": "timeout",
                              "element": "input",

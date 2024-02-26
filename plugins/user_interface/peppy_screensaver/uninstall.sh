@@ -13,6 +13,7 @@ cd $dest_path
 MPD=/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl
 echo "___Restore additional peppymeter output..."
 df $MPD | grep $MPD && sudo umount $MPD
+# rm /etc/mpd_include.conf
 
 node createConf.js
 

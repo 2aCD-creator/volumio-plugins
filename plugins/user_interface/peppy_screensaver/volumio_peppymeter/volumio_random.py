@@ -5,11 +5,12 @@
 
 import time
 import ctypes
+import pygame as pg
 
 from socketIO_client import SocketIO
 from threading import Thread
 
-from configfileparser import METER, RANDOM_METER_INTERVAL
+from configfileparser import METER, RANDOM_METER_INTERVAL, SCREEN_RECT
 from volumio_configfileparser import RANDOM_TITLE
   
 class RandomControl(Thread):
@@ -41,18 +42,23 @@ class RandomControl(Thread):
         
     def run(self):
         """ Thread method. show all title infos and albumart. """
-        
+
+        def meter_restart():
+            self.meter.stop()
+            time.sleep(1) # wait for threads finshed
+            self.meter.start()
+            pg.display.update(self.util.meter_config[SCREEN_RECT])
+                    
         def on_push_state(*args):
             #print (args[0]['status'] + args[0]['title'])
             if args[0]['status'] == 'play' and args[0]['title'] != self.title_mem:
                 if not self.first_run:
-                    time.sleep(2)
-                    self.meter.restart()                
+                    meter_restart()
+
                 self.title_mem = args[0]['title']
                 #print('change')
 
             self.first_run = False
-
                 
         def on_connect():
             #print('connect')
@@ -71,7 +77,7 @@ class RandomControl(Thread):
                 if not self.random_title:
                     if self.seconds == self.random_meter_interval:
                         self.seconds = 0
-                        self.meter.restart()
+                        meter_restart()
                     self.seconds += 1
             
                 socketIO.wait(1)		

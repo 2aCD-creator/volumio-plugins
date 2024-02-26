@@ -3,6 +3,11 @@ PeppyMeter as screensaver for Volumio on raspberry pi
 >Many thanks to peppy.player, who provided the conditions for this
 
 -----
+##### Version 1.4.2
+* add Airplay integration
+* fix some graphical issues for random mode on title change
+* performance optimizations
+
 ##### Version 1.4.1
 * fix Spotify stops playing in combination of PeppyMeter and some USB-DAC's
 * now an external stop of PeppyMeter possible with deletion of /tmp/peppyrunning

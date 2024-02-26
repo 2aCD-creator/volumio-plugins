@@ -21,10 +21,14 @@ var minmax = new Array(5);
 var last_outputdevice, last_softmixer;
 var peppy_config, base_folder;
 
-const MPDtmpl = '/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl'
-const MPD = '/data/configuration/user_interface/peppy_screensaver/mpd.conf.tmpl';
-const AIRtmpl = '/volumio/app/plugins/music_service/airplay_emulation/shairport-sync.conf.tmpl'
-const AIR = '/data/configuration/user_interface/peppy_screensaver/shairport-sync.conf.tmpl';
+const PluginConfiguration = '/data/configuration/plugins.json';
+const MPDtmpl = '/volumio/app/plugins/music_service/mpd/mpd.conf.tmpl';
+const MPD = '/tmp/mpd.conf.tmpl';
+const MPD_include_tmpl = '/data/plugins/user_interface/peppy_screensaver/mpd_include.conf';
+const MPD_include = '/etc/mpd_include.conf';
+const AIRtmpl = '/volumio/app/plugins/music_service/airplay_emulation/shairport-sync.conf.tmpl';
+const AIR = '/tmp/shairport-sync.conf.tmpl';
+
 var availMeters = '';
 var uiNeedsUpdate;
 const spotify_config = '/data/plugins/music_service/spop/config.yml.tmpl';
@@ -66,7 +70,7 @@ peppyScreensaver.prototype.onStart = function() {
     self.install_dummy();
 
     // remove old flag
-    if (!fs.existsSync(runFlag)){fs.removeSync(runFlag);}
+    if (fs.existsSync(runFlag)){fs.removeSync(runFlag);}
 
     // get peppyMeter config and new baseFolder
     var config_file = PeppyPath + 'config.txt';
@@ -75,23 +79,23 @@ peppyScreensaver.prototype.onStart = function() {
         base_folder = peppy_config.current['base.folder'] + '/';
         if (base_folder == '/') {base_folder = PeppyPath;}
     }
-    
-    if (self.IfBuster()) {
-      //self.logger.info('_________________ detect Buster _________________');
 
-      // inject additional output to peppymeter it's removed on stop
+    // copy MPD_include file
+    if (!fs.existsSync(MPD_include)) {self.copy_MPD_include(MPD_include_tmpl, MPD_include);}
+        
+    if (self.IfBuster()) {
+      //_________________ detect Buster _________________
+
+      // inject additional include entry to mpd.conf, only if not exist, it's removed on stop
       try {
-        if (!fs.existsSync(MPD)){
-            fs.copySync(MPDtmpl, MPD); // copy orignal file
-            self.add_mpdoutput (MPD)
-                .then(self.mount_tmpl.bind(self, MPD, MPDtmpl))
-                .then(self.recreate_mpdconf.bind(self))
-                .then(self.restartMpd.bind(self));
-        } else {
-            // mount mpd_tmpl
-            self.mount_tmpl(MPD, MPDtmpl);
-            
-        }
+		var MPDdata = fs.readFileSync(MPDtmpl, 'utf8'); 
+		if (!MPDdata.includes('include_optional')){
+			fs.copySync(MPDtmpl, MPD); // copy orignal template file to /tmp
+			self.add_mpd_include (MPD) // change the copy
+				.then(self.mount_tmpl.bind(self, MPD, MPDtmpl)) // mount over original template
+				.then(self.recreate_mpdconf.bind(self));        // recreate mpd.conf on /etc
+		//		.then(self.restartMpd.bind(self));
+		}
       } catch (err) {
         self.logger.error(id + MPDtmpl + 'not found');
       }
@@ -99,72 +103,53 @@ peppyScreensaver.prototype.onStart = function() {
       last_outputdevice = self.getAlsaConfigParam('outputdevice');
       last_softmixer = self.getAlsaConfigParam('softvolume');
       
-      self.updateALSAConfigFile().then (function(){
+      //self.updateALSAConfigFile().then (function(){
              
         // modular alsa 16bit/24bit enabled, switch if needed
-        var alsaconf = parseInt(self.config.get('alsaSelection'),10);
-        if (alsaconf == 0) {
-            self.get_output_enabled(MPD).then (function(OutEnabled) {
-                if (OutEnabled) {
-                    self.switch_alsaConfig(alsaconf);                      
-                }  
-            });
+        //var alsaconf = parseInt(self.config.get('alsaSelection'),10);
+        //if (alsaconf == 0) {
+        //    self.get_output_enabled(MPD_include).then (function(OutEnabled) {
+        //        if (OutEnabled) {
+        //            self.switch_alsaConfig(alsaconf);                      
+        //        }  
+        //    });
             
             
         // native DSD enabled, switch if needed
-        } else {            
-            self.get_output_enabled(MPD).then (function(OutEnabled) {
-                if (!OutEnabled) {
-                    self.switch_alsaConfig(alsaconf);                      
-                }
-            });
-        }
-        
-        // event callback if outputdevice or mixer changed
-        self.commandRouter.sharedVars.registerCallback('alsa.outputdevice', self.switch_alsaModular.bind(self));
+        //} else {            
+        //    self.get_output_enabled(MPD_include).then (function(OutEnabled) {
+        //        if (!OutEnabled) {
+        //            self.switch_alsaConfig(alsaconf);                      
+        //        }
+        //    });
+        //}
       
-      });
-
-      // spotify enabled
-      if (fs.existsSync(spotify_config)){
-        // redirect spotify to volumio
+      //});
+      
+      // event callback if outputdevice or mixer changed
+      self.commandRouter.sharedVars.registerCallback('alsa.outputdevice', self.switch_alsaModular.bind(self));
+      
+      // synchronize external spotify settings with own configuration  
+      if (fs.existsSync(spotify_config) && self.getPluginStatus ('music_service', 'spop') === 'STARTED'){
         var spotifydata = fs.readFileSync(spotify_config, 'utf8'); 
         var useSpot = self.config.get('useSpotify');
         if ((useSpot && spotifydata.includes('volumio')) || (!useSpot && spotifydata.includes('spotify'))) {
             self.switch_Spotify(useSpot);
         }
-
       }
-   
-    } else {
-        //self.logger.info('_________________ detect Jessie _________________');
 
-        // inject additional output to peppymeter it's removed on stop
-        // and create asound.conf from template
-        try {
-            if (!fs.existsSync(MPD)){
-                fs.copySync(MPDtmpl, MPD); // copy orignal files
-                fs.copySync(AIRtmpl, AIR);
-                self.createAsoundConfig()
-                    .then(self.redirect_airoutput.bind(self, AIR))
-                    .then(self.mount_tmpl.bind(self, AIR, AIRtmpl))
-                    .then(self.add_mpdoutput.bind(self, MPD))
-                    .then(self.redirect_mpdoutput.bind(self, MPD))
-                    .then(self.mount_tmpl.bind(self, MPD, MPDtmpl))
-                    .then(self.recreate_mpdconf.bind(self))
-                    .then(self.restartMpd.bind(self));
-            } else {
-                // mount mpd_tmpl, air_tmpl
-                self.mount_tmpl(MPD, MPDtmpl);
-                self.mount_tmpl(AIR, AIRtmpl);
-            }
-        } catch (err) {
-            self.logger.error(id + MPD + 'not found');
-        }
-      
-        // event callback if outputdevice or mixer changed
-        self.commandRouter.sharedVars.registerCallback('alsa.outputdevice', self.createAsoundConfig.bind(self));    
-
+	  // synchronize external airplay settings with own configuration
+      if (fs.existsSync(AIRtmpl) && self.getPluginStatus ('music_service', 'airplay_emulation') === 'STARTED'){
+		var airplaydata = fs.readFileSync(AIRtmpl, 'utf8'); 
+		var useAir = self.config.get('useAirplay');
+		if ((useAir && airplaydata.includes('${device}')) || (!useAir && airplaydata.includes('airplay'))) {
+			self.switch_Airplay(useAir);
+		}
+	  }
+	  
+    } else {    
+        // ________________ Jessie _________________
+        self.logger.error('+++ Jessie not more supported! +++');
     }
 
     // event function on change state    
@@ -208,30 +193,23 @@ peppyScreensaver.prototype.onStop = function() {
     self.commandRouter.stateMachine.stop().then(function () {
         if (fs.existsSync(MPD)){
             //unmount mpd_tmpl file, if mounted
-            self.unmount_tmpl(MPDtmpl)
-                .then(function(){
-                    fs.removeSync(MPD);                   
-                    self.recreate_mpdconf().then(self.restartMpd.bind(self));
-                });
+            self.unmount_tmpl(MPDtmpl);
+                //.then(function(){                  
+                //    self.recreate_mpdconf();
+                //        .then(self.restartMpd.bind(self));
+                //});
         } else {
             self.logger.info (id + 'mpd template already unmounted');
         }
 
-        if (fs.existsSync(AIR)){
-            //unmount air_tmpl file, if mounted
-            self.unmount_tmpl(AIRtmpl)
-                .then(function() {fs.removeSync(AIR);});
-        } else {
-            self.logger.info (id + 'air template already unmounted');
-        }
+        //unmount air_tmpl file, if mounted
+        if (fs.existsSync(AIR)){self.unmount_tmpl(AIRtmpl);}
         
-        if (fs.existsSync(spotify_config)){
-            // redirect spotify to volumio
-            self.switch_Spotify(false);
-        }
-
+        // redirect spotify to volumio
+        if (fs.existsSync(spotify_config)){self.switch_Spotify(false);}
+		
         // remove old flag
-        if (!fs.existsSync(runFlag)){fs.removeSync(runFlag);}
+        if (fs.existsSync(runFlag)){fs.removeSync(runFlag);}
         
         defer.resolve();                
           
@@ -256,11 +234,18 @@ peppyScreensaver.prototype.onUninstall = function () {
   var self = this;
   //Perform your installation tasks here
   
+        // remove MPD_include file
+        if (fs.existsSync(MPD_include)){fs.removeSync(MPD_include);}
+        
         if (fs.existsSync(spotify_config)){
             // redirect spotify to volumio
             self.switch_Spotify(false);
         }
-        
+		if (fs.existsSync(AIR)){
+            //unmount air_tmpl file, if mounted
+            self.unmount_tmpl(AIRtmpl);
+        //        .then(function() {fs.removeSync(AIR);});
+		}
 };
 
 // Configuration Methods -----------------------------------------------------------------------------
@@ -308,22 +293,36 @@ peppyScreensaver.prototype.getUIConfig = function() {
                 }
                 // Spotify integration
                 if (fs.existsSync(spotify_config)){
-                    if (self.config.get('useDSP')) {
-                        self.config.set('useSpotify', false);
+                    if (self.getPluginStatus ('music_service', 'spop') === 'STARTED') {
+                        if (self.config.get('useDSP')) {
+                            self.config.set('useSpotify', false);
+                        } else {
+                            uiconf.sections[0].content[2].value = self.config.get('useSpotify');
+                        }
                     } else {
-                        uiconf.sections[0].content[2].value = self.config.get('useSpotify');
+                        uiconf.sections[0].content[2].hidden = true;
                     }
                 } else {
                     self.config.set('useSpotify', false);
                     uiconf.sections[0].content[2].hidden = true;
                 }
+                // Airplay integration
+                if (self.getPluginStatus ('music_service', 'airplay_emulation') === 'STARTED'){
+                    if (self.config.get('useDSP')) {
+                        self.config.set('useAirplay', false);
+                    } else {
+                        uiconf.sections[0].content[3].value = self.config.get('useAirplay');
+                    }
+                } else {
+                    uiconf.sections[0].content[3].hidden = true;
+                }
             }
             
             // screensaver timeout
-            uiconf.sections[0].content[3].value = self.config.get('timeout');
-            minmax[0] = [uiconf.sections[0].content[3].attributes[2].min,
-              uiconf.sections[0].content[3].attributes[3].max,
-              uiconf.sections[0].content[3].attributes[0].placeholder];
+            uiconf.sections[0].content[4].value = self.config.get('timeout');
+            minmax[0] = [uiconf.sections[0].content[4].attributes[2].min,
+              uiconf.sections[0].content[4].attributes[3].max,
+              uiconf.sections[0].content[4].attributes[0].placeholder];
                                       
             // active folder
             // fill selection list with custom folders
@@ -333,7 +332,7 @@ peppyScreensaver.prototype.getUIConfig = function() {
                 if (stat.isDirectory() && file.includes ('custom')) {
                     var partFile = file.split('_');
                     var str_empty = fs.existsSync(base_folder + file + '/meters.txt') ? '' : ' (empty)';
-                    self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[4].options', {
+                    self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[5].options', {
                         value: file,
                         label: 'Custom-' +  partFile[2] + ' ' + partFile[0] + str_empty
                     });
@@ -343,30 +342,30 @@ peppyScreensaver.prototype.getUIConfig = function() {
                 var meterFolder = peppy_config.current['meter.folder'];
                 var partFile = meterFolder.split('_');
                 var str_empty = fs.existsSync(base_folder + meterFolder + '/meters.txt') ? '' : ' (empty)';
-                uiconf.sections[0].content[4].value.value = meterFolder;
-                uiconf.sections[0].content[4].value.label = 'Custom-' +  partFile[2] + ' ' + partFile[0] + str_empty;
+                uiconf.sections[0].content[5].value.value = meterFolder;
+                uiconf.sections[0].content[5].value.label = 'Custom-' +  partFile[2] + ' ' + partFile[0] + str_empty;
             //} else {
-            //    uiconf.sections[0].content[4].value.value = self.config.get('activeFolder');
-            //    uiconf.sections[0].content[4].value.label = self.config.get('activeFolder_title');
+            //    uiconf.sections[0].content[5].value.value = self.config.get('activeFolder');
+            //    uiconf.sections[0].content[5].value.label = self.config.get('activeFolder_title');
             //}
 
             // smooth buffer
-            uiconf.sections[0].content[5].value = parseInt(peppy_config.data.source['smooth.buffer.size'], 10);                                
-            minmax[1] = [uiconf.sections[0].content[5].attributes[2].min,
-                uiconf.sections[0].content[5].attributes[3].max,
-                uiconf.sections[0].content[5].attributes[0].placeholder];
+            uiconf.sections[0].content[6].value = parseInt(peppy_config.data.source['smooth.buffer.size'], 10);                                
+            minmax[1] = [uiconf.sections[0].content[6].attributes[2].min,
+                uiconf.sections[0].content[6].attributes[3].max,
+                uiconf.sections[0].content[6].attributes[0].placeholder];
 
             // needle cache
             var needleCache = (peppy_config.current['use.cache']).toLowerCase() == 'true' ? true : false;
-            uiconf.sections[0].content[6].value = needleCache;
+            uiconf.sections[0].content[7].value = needleCache;
             
             // mouse support
             var mouseSupport = (peppy_config.sdl.env['mouse.enabled']).toLowerCase() == 'true' ? true : false;
-            uiconf.sections[0].content[7].value = mouseSupport;
+            uiconf.sections[0].content[8].value = mouseSupport;
 
             // display output
-            uiconf.sections[0].content[8].value.value = self.config.get('displayOutput');
-            uiconf.sections[0].content[8].value.label = 'Display=' + self.config.get('displayOutput');
+            uiconf.sections[0].content[9].value.value = self.config.get('displayOutput');
+            uiconf.sections[0].content[9].value.label = 'Display=' + self.config.get('displayOutput');
              
             // section 1 ------------
             availMeters = '';
@@ -472,13 +471,25 @@ peppyScreensaver.prototype.savePeppyMeterConf = function (confData) {
     }
 
     // write spotify
-    if (self.IfBuster()) {
+    if (self.IfBuster() && self.getPluginStatus ('music_service', 'spop') === 'STARTED') {
         if (confData.useDSP) {
             self.config.set('useSpotify', false);
             self.switch_Spotify(false);
         } else if (self.config.get('useSpotify') != confData.useSpotify) {
             self.config.set('useSpotify', confData.useSpotify);
             self.switch_Spotify(confData.useSpotify);
+            noChanges = false;
+        }
+    }
+
+    // write airplay
+    if (self.IfBuster() && self.getPluginStatus ('music_service', 'airplay_emulation') === 'STARTED'){
+        if (confData.useDSP) {
+            self.config.set('useAirplay', false);
+            self.switch_Airplay(false);
+        } else if (self.config.get('useAirplay') != confData.useAirplay) {
+            self.config.set('useAirplay', confData.useAirplay);
+            self.switch_Airplay(confData.useAirplay);
             noChanges = false;
         }
     }
@@ -690,14 +701,13 @@ peppyScreensaver.prototype.checkDSPactive = function (DSD){
   const defer = libQ.defer();
   let DSPMessage = "";
   let DSPMessageTitle = "";
-  
-  fs.readFile('/etc/asound.conf', function (err, data) {
-    if (err) throw err;
-    if(DSD && data.includes('fusiondsphook')){	
+  let DSPactive = self.getPluginStatus ('audio_interface', 'fusiondsp') === 'STARTED';
+	    
+    if(DSD && DSPactive){	
         DSPMessageTitle = self.commandRouter.getI18nString('PEPPY_SCREENSAVER.DSPWARNING_TITLE');
         DSPMessage = self.commandRouter.getI18nString('PEPPY_SCREENSAVER.DSPWARNING');
     }
-    if(!DSD && !data.includes('fusiondsphook')){
+    if(!DSD && !DSPactive){
         DSPMessageTitle = self.commandRouter.getI18nString('PEPPY_SCREENSAVER.NODSPWARNING_TITLE');
         DSPMessage = self.commandRouter.getI18nString('PEPPY_SCREENSAVER.NODSPWARNING');
     }
@@ -706,10 +716,10 @@ peppyScreensaver.prototype.checkDSPactive = function (DSD){
             self.commandRouter.pushToastMessage('warning', DSPMessageTitle, DSPMessage);
         }, 1500);
     }
-  })
 
   return defer.promise;
 };
+
 
 peppyScreensaver.prototype.checkMetersFile = function (){
     const self = this;
@@ -758,13 +768,12 @@ peppyScreensaver.prototype.switch_alsaConfig = function (alsaConf) {
     var defer = libQ.defer();
     var enableDSD = alsaConf == 1 ? true : false;
     
-    self.MPD_setOutput(MPD, enableDSD)
-// removed since 3.569
-//        .then(self.MPD_allowedFormats.bind(self, MPD, enableDSD))
+    self.MPD_setOutput(MPD_include, enableDSD)
+//        .then(self.MPD_allowedFormats.bind(self, MPD, enableDSD)) // not more needed
         .then(self.writeAsoundConfigModular.bind(self, alsaConf))
         .then(self.updateALSAConfigFile.bind(self))
-        .then(self.updateMountpoint.bind(self, MPD, MPDtmpl))
-        .then(self.recreate_mpdconf.bind(self))
+//        .then(self.updateMountpoint.bind(self, MPD, MPDtmpl))     // not more needed with MPD_include
+//        .then(self.recreate_mpdconf.bind(self))                   // not more needed with MPD_include
         .then(self.restartMpd.bind(self));
     defer.resolve
     return defer.promise;    
@@ -775,11 +784,22 @@ peppyScreensaver.prototype.switch_DisplayPort = function (DispOut) {
     const self = this;
     var defer = libQ.defer();
     var runPeppy_file = PeppyPath + RunPeppyFile;
-    if (fs.existsSync(spotify_config)){
+    
+    if (fs.existsSync(runPeppy_file)){
+        var runPeppydata = fs.readFileSync(runPeppy_file, 'utf8');
+        if (DispOut == "0") {
+            runPeppydata = runPeppydata.replace('DISPLAY=:1', 'DISPLAY=:' + DispOut);
+        } else {
+            runPeppydata = runPeppydata.replace('DISPLAY=:0', 'DISPLAY=:' + DispOut);
+        }
 
-        execSync("/bin/sed -i '0,/DISPLAY=:0/ s//DISPLAY=:" + DispOut + "/' " + runPeppy_file);
-        execSync("/bin/sed -i '0,/DISPLAY=:1/ s//DISPLAY=:" + DispOut + "/' " + runPeppy_file);
-        
+        fs.writeFile(runPeppy_file, runPeppydata, 'utf8', function (err) {
+            if (err) {
+                self.logger.info('Cannot write ' + runPeppy_file + err);
+            } else {               
+                defer.resolve();
+            }
+        });
     } else {
         defer.resolve();
     }
@@ -805,8 +825,7 @@ peppyScreensaver.prototype.switch_Spotify = function (useSpotify) {
         fs.writeFile(spotify_config, spotifydata, 'utf8', function (err) {
             if (err) {
                 self.logger.info('Cannot write ' + spotify_config + err);
-            } else {
-                //self.logger.info('______________________ Peppyalsa.postPeppyalsa.5.conf file written');               
+            } else {              
                 var cmdret = self.commandRouter.executeOnPlugin('music_service', 'spop', 'initializeLibrespotDaemon', '');
                 defer.resolve();
             }
@@ -818,6 +837,41 @@ peppyScreensaver.prototype.switch_Spotify = function (useSpotify) {
     return defer.promise;    
 };
 
+// buster switch airplay
+peppyScreensaver.prototype.switch_Airplay = function (useAirplay) {
+    const self = this;
+    var defer = libQ.defer();
+
+    if (fs.existsSync(AIRtmpl)){
+        if (useAirplay) {
+			if (!fs.existsSync(AIR)){
+				fs.copySync(AIRtmpl, AIR); // copy orignal file
+				var airplaydata = fs.readFileSync(AIR, 'utf8'); 
+				airplaydata = airplaydata.replace('${device}', 'airplay');
+				fs.writeFileSync(AIR, airplaydata);
+			}
+			// mount template
+			self.mount_tmpl(AIR, AIRtmpl);
+			
+        } else {
+			if (fs.existsSync(AIR)){
+				//unmount air_tmpl file, if mounted
+				self.unmount_tmpl(AIRtmpl)
+					.then(function() {fs.removeSync(AIR);});
+			}
+        }
+        
+        // restart airplay, if running
+        if (self.getPluginStatus ('music_service', 'airplay_emulation') === 'STARTED'){
+            var cmdret = self.commandRouter.executeOnPlugin('music_service', 'airplay_emulation', 'startShairportSync', '');
+        }
+		defer.resolve();
+    } else {
+        defer.resolve();
+    }
+
+    return defer.promise;
+};
     
 // buster callback if mixer or outputdevice changed
 // update of asound template
@@ -845,13 +899,14 @@ peppyScreensaver.prototype.get_output_enabled = function (data) {
     var defer = libQ.defer();
     var found = false;
     var count = 0;
-    
+       
     lineReader.eachLine(data, function(line) {
   
         if (line.includes('---> output peppymeter')) {
             found = true;
         }
         if (found) {count += 1;}
+
         if (count === 3) {
             if (line.includes('no')) {
                 defer.resolve (false);
@@ -865,7 +920,7 @@ peppyScreensaver.prototype.get_output_enabled = function (data) {
     return defer.promise;
 };
 
-// enable the MPD output for peppymeter
+// enable the MPD output for peppymeter 
 peppyScreensaver.prototype.MPD_setOutput = function (data, enableDSD) {
   const self = this;
   let defer = libQ.defer();
@@ -883,141 +938,25 @@ peppyScreensaver.prototype.MPD_setOutput = function (data, enableDSD) {
 };
 
 
-// buster enable the MPD allowed_formats
-peppyScreensaver.prototype.MPD_allowedFormats = function (data, enableDSD) {
+// inject additional include file to mpd.conf.tmpl
+peppyScreensaver.prototype.add_mpd_include = function (data) {
   const self = this;
   let defer = libQ.defer();
-  
-  // remove old entry
-  exec("sed -i '/allowed_formats/d' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-    if (error) {
-        self.logger.warn(id + 'An error occurred when change allowed formats MPD', error);
-    } else {
-        // add new entry for alsa pipeline
-        setTimeout(function () {
-            if (!enableDSD) {
-                exec("sed -i '/${special_settings}/a allowed_formats\t\x22192000:*:* 96000:*:* 88200:*:* 48000:*:* 44100:*:* 32000:*:* 16000:*:*\x22' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-                    if (error) {
-                        self.logger.warn(id + 'An error occurred when change allowed formats MPD', error);
-                    } else {
-                        setTimeout(function () {defer.resolve();}, 100);
-                    }       
-                });
+
+    var MPDdata = fs.readFileSync(data, 'utf8'); 
+    if (!MPDdata.includes('include_optional')){
+            
+        exec("sed -i '/# Files and directories/a include_optional    \x22mpd_include.conf\x22' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr    ) {
+            if (error) {
+                self.logger.warn(id + 'An error occurred when add MPD include entry', error);
             } else {
-                defer.resolve();
-            }
-        }, 100);
-    }
-  });
-
-  return defer.promise;
-};
-
-// inject additional output for peppymeter to mpd.conf.tmpl
-peppyScreensaver.prototype.add_mpdoutput = function (data) {
-  const self = this;
-  let defer = libQ.defer();
-  
-  var insertStr = '"\
-#---> output peppymeter\\n\
-audio_output {\\n\
-        enabled     \\x22yes\\x22\\n\
-        type        \\x22alsa\\x22\\n\
-        name        \\x22mpd_peppyalsa\\x22\\n\
-        device      \\x22mpd_peppyalsa\\x22\\n\
-        dop         \\x22yes\\x22\\n\
-        mixer_type  \\x22none\\x22\\n\
-        format      \\x2244100:16:2\\x22\\n\
-}\\n\
-#<--- end peppymeter"';
-  
-  exec("awk 'NR==FNR{if ($0 ~ /multiroom/){c=NR};next} {if (FNR==(c-4)) {print " + insertStr + " }};1' " +  data + " " + data + " > " + data + "_tmp && mv " + data + "_tmp " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-    if (error) {
-        self.logger.warn(id + 'An error occurred when creating inject', error);
-    } else {
-        setTimeout(function () {defer.resolve();}, 100);
-    }
-  });
-  return defer.promise;
-};
-
-// remove injected additional output for peppymeter from mpd.conf.tmpl
-peppyScreensaver.prototype.del_mpdoutput = function (data) {
-  const self = this;
-  let defer = libQ.defer();
-
-  exec("sed -n -i '/---> output peppymeter/,/<--- end peppymeter/!p' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-    if (error) {
-        self.logger.warn(id + 'An error occurred when remove inject' + error);
-    } else {
-        setTimeout(function () {defer.resolve();}, 100);
-    }
-  });
-  return defer.promise;
-};
-
-// jessie redirect standard output to mpd_alsa
-peppyScreensaver.prototype.redirect_mpdoutput = function (data) {
-  const self = this;
-  let defer = libQ.defer();
-  
-  var mpddata = fs.readFileSync(data, 'utf8');
-  mpddata = mpddata.replace('${device}', 'mpd_alsa');
-  fs.writeFile(data, mpddata, 'utf8', function (error) {
-    if (error) {
-        self.logger.error(id + 'Cannot write ' + data + ': ' + error);
-    } else {
-        self.logger.info(id + 'mpd.conf.tmpl file written');
-        defer.resolve();
-    }
-  });
-  return defer.promise;
-};
-
-// jessie modify airplay output
-peppyScreensaver.prototype.redirect_airoutput = function (data) {
-  const self = this;
-  let defer = libQ.defer();
-  
-  var airdata = fs.readFileSync(data, 'utf8');
-  airdata = airdata.replace('${device}', 'peppyalsa');
-  fs.writeFile(data, airdata, 'utf8', function (error) {
-    if (error) {
-        self.logger.error(id + 'Cannot write ' + data + ': ' + error);
-    } else {
-        self.logger.info(id + 'shairport-sync.conf.tmpl file written');
-        defer.resolve();
-    }
-  });
-  return defer.promise;
-};
-
-
-// recreate active /etc/mpd.conf
-peppyScreensaver.prototype.recreate_mpdconf = function () {
-  const self = this;
-  let defer = libQ.defer();
-  
-  self.commandRouter.executeOnPlugin('music_service', 'mpd', 'createMPDFile', function(error) {
-    if (error) {
-        self.logger.error(id + 'Cannot create /etc/mpd.conf ' + error);
+                setTimeout(function () {defer.resolve();}, 100);
+            }       
+        });
     } else {
         defer.resolve();
     }
-  });
-  return defer.promise;
-};  
-
-// restart MPD-deamon
-peppyScreensaver.prototype.restartMpd = function () {
-  var self = this;
-  var defer = libQ.defer();
-
-  setTimeout(function () {
-    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
-    defer.resolve();
-  }, 500);
-
+                
   return defer.promise;
 };
 
@@ -1078,7 +1017,196 @@ peppyScreensaver.prototype.unmount_tmpl = function (data_dest) {
   return defer.promise;
 };
 
-// update the mountpoint after change the copied file
+// restart MPD-deamon
+peppyScreensaver.prototype.restartMpd = function () {
+  var self = this;
+  var defer = libQ.defer();
+
+  setTimeout(function () {
+    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
+    defer.resolve();
+  }, 500);
+
+  return defer.promise;
+};
+
+// copy MPD_include file
+peppyScreensaver.prototype.copy_MPD_include = function (data, data_dest) {
+  var self = this;
+  var defer = libQ.defer();
+  
+  try {
+
+    fs.copySync(data, data_dest);
+  
+    exec('/bin/chmod 777 ' + data_dest, function (error, stdout, stderr) {        
+        if (error) {
+            self.logger.error(id + 'Error chmod ' + data_dest + ' ' + error);
+        } else {
+            defer.resolve();
+        }    
+    });        
+
+  } catch (err) {
+    defer.resolve();
+  }
+  
+  return defer.promise;
+};
+
+// recreate active /etc/mpd.conf
+peppyScreensaver.prototype.recreate_mpdconf = function () {
+  const self = this;
+  let defer = libQ.defer();
+  
+  self.commandRouter.executeOnPlugin('music_service', 'mpd', 'createMPDFile', function(error) {
+    if (error) {
+        self.logger.error(id + 'Cannot create /etc/mpd.conf ' + error);
+    } else {
+        defer.resolve();
+    }
+  });
+  return defer.promise;
+};
+
+// buster write asound.conf from template and remove variables
+peppyScreensaver.prototype.writeAsoundConfigModular = function (alsaConf) {
+  var self = this;
+  var asoundTempl = __dirname + '/Peppyalsa.postPeppyalsa.5.conf.tmpl';
+  var conf;
+  var defer = libQ.defer();
+  var useDSP = fs.existsSync(dsp_config) && self.config.get('useDSP');
+  
+  if (fs.existsSync(asoundTempl)) {
+    var asounddata = fs.readFileSync(asoundTempl, 'utf8');
+    
+    if (alsaConf == 1) { // DSD native
+        if (!useDSP) {
+            conf = asounddata.replace('${alsaDirect}', 'Peppyalsa');
+        }
+
+    } else {  // modular alsa                  
+        conf = asounddata.replace('${alsaMeter}', 'Peppyalsa');
+    }
+
+    conf = conf.replace('${alsaMeter}', 'peppy1_off');
+    conf = conf.replace('${alsaDirect}', 'peppy2_off');
+    
+    // change alsa config depend on outputdevice and mixer
+    // no reformat possible for softmixer
+    // for internal cards (hdmi, headphone) 44100 kHz
+    // for external sound cards 16000 kHz (the only rate without error)
+    var outputdevice = self.getAlsaConfigParam('outputdevice');
+    var softmixer = self.getAlsaConfigParam('softvolume');
+        
+    if (outputdevice == 'softvolume') {
+        outputdevice = self.getAlsaConfigParam ('softvolumenumber');
+    }
+// removed since 3.569
+//    var slave_b = softmixer ? 'mpd_peppyalsa' : 'reformat'; 
+//    conf = conf.replace('${slave_b}', slave_b);            
+//    var rate = parseInt(outputdevice,10) > 1 ? 16000 : 44100;
+//    conf = conf.replace('${rate}', rate);    
+        
+    fs.writeFile(__dirname + '/asound/Peppyalsa.postPeppyalsa.5.conf', conf, 'utf8', function (err) {
+        if (err) {
+            self.logger.info('Cannot write Peppyalsa.postPeppyalsa.5.conf: ' + err);
+        } else {
+            //self.logger.info('Peppyalsa.postPeppyalsa.5.conf file written');  
+            defer.resolve();
+        }
+    });
+  }
+
+return defer.promise;  
+};
+
+
+
+peppyScreensaver.prototype.getAlsaConfigParam = function (data) {
+	var self = this;
+	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', data);
+};
+
+peppyScreensaver.prototype.disableSoftMixer = function (data) {
+	var self = this;
+	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'disableSoftMixer', data);
+};
+
+peppyScreensaver.prototype.writeSoftMixerFile = function (data) {
+	var self = this;
+	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'writeSoftMixerFile', data);
+};
+
+peppyScreensaver.prototype.IfBuster = function () {
+	var self = this; 
+    return self.commandRouter.executeOnPlugin('system_controller', 'system', 'getConfigParam', 'system_version') < 3.0 ? false : true;
+};
+
+peppyScreensaver.prototype.updateALSAConfigFile = function () {
+	var self = this;
+    var defer = libQ.defer();
+    self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
+    defer.resolve();
+    return defer.promise;
+};
+    
+//--------------------------------------------------------------
+
+// called from commandrouter to find the language file
+peppyScreensaver.prototype.getI18nFile = function (langCode) {
+  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const langFile = 'strings_' + langCode + '.json';
+
+  // check for i18n file fitting the system language
+  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+    return path.join(__dirname, 'i18n', langFile);
+  }
+  // return default i18n file
+  return path.join(__dirname, 'i18n', 'strings_en.json');
+};
+
+peppyScreensaver.prototype.getConfigParam = function (key) {
+  var self = this;
+  return self.config.get(key);
+};
+
+peppyScreensaver.prototype.setConfigParam = function (data) {
+  var self = this;
+  self.config.set(data.key, data.value);
+};
+
+peppyScreensaver.prototype.getPluginStatus = function (category, name) {
+  var self = this;
+  
+  var PlugInConfig = new (require('v-conf'))();
+  PlugInConfig.loadFile(PluginConfiguration);
+  var retStr = PlugInConfig.get(category + '.' + name + '.status');
+  retStr = typeof retStr === 'undefined' ? 'null' : retStr;
+  return retStr;  
+};
+//-------------------------------------------------------------
+
+peppyScreensaver.prototype.setUIConfig = function(data) {
+	var self = this;
+	//Perform your installation tasks here
+};
+
+peppyScreensaver.prototype.getConf = function(varName) {
+	var self = this;
+	//Perform your installation tasks here
+};
+
+peppyScreensaver.prototype.setConf = function(varName, varValue) {
+	var self = this;
+	//Perform your installation tasks here
+};
+
+//--------------------------------------------------------------
+// unused procedures --> to delete
+//--------------------------------------------------------------
+
+// update the mountpoint after change the copied file ---> to delete
 peppyScreensaver.prototype.updateMountpoint = function (data_source, data_dest) {
   var self = this;
   var defer = libQ.defer();
@@ -1094,8 +1222,116 @@ peppyScreensaver.prototype.updateMountpoint = function (data_source, data_dest) 
   return defer.promise;
 };
 
+// buster enable the MPD allowed_formats --- to delete
+peppyScreensaver.prototype.MPD_allowedFormats = function (data, enableDSD) {
+  const self = this;
+  let defer = libQ.defer();
+  
+  // remove old entry
+  exec("sed -i '/allowed_formats/d' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+    if (error) {
+        self.logger.warn(id + 'An error occurred when change allowed formats MPD', error);
+    } else {
+        // add new entry for alsa pipeline
+        setTimeout(function () {
+            if (!enableDSD) {
+                exec("sed -i '/${special_settings}/a allowed_formats\t\x22192000:*:* 96000:*:* 88200:*:* 48000:*:* 44100:*:* 32000:*:* 16000:*:*\x22' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+                    if (error) {
+                        self.logger.warn(id + 'An error occurred when change allowed formats MPD', error);
+                    } else {
+                        setTimeout(function () {defer.resolve();}, 100);
+                    }       
+                });
+            } else {
+                defer.resolve();
+            }
+        }, 100);
+    }
+  });
 
-// create asound depend on mixer type
+  return defer.promise;
+};
+
+// inject additional output for peppymeter to mpd.conf.tmpl ---> to delete
+peppyScreensaver.prototype.add_mpdoutput = function (data) {
+  const self = this;
+  let defer = libQ.defer();
+
+  var insertStr = '"\
+#---> output peppymeter\\n\
+audio_output {\\n\
+        enabled     \\x22yes\\x22\\n\
+        type        \\x22alsa\\x22\\n\
+        name        \\x22mpd_peppyalsa\\x22\\n\
+        device      \\x22mpd_peppyalsa\\x22\\n\
+        dop         \\x22yes\\x22\\n\
+        mixer_type  \\x22none\\x22\\n\
+        format      \\x2244100:16:2\\x22\\n\
+}\\n\
+#<--- end peppymeter"';
+  
+  exec("awk 'NR==FNR{if ($0 ~ /multiroom/){c=NR};next} {if (FNR==(c-4)) {print " + insertStr + " }};1' " +  data + " " + data + " > " + data + "_tmp && mv " + data + "_tmp " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+    if (error) {
+        self.logger.warn(id + 'An error occurred when creating inject', error);
+    } else {
+        setTimeout(function () {defer.resolve();}, 100);
+    }
+  });
+  return defer.promise;
+};
+
+// remove injected additional output for peppymeter from mpd.conf.tmpl ---> to delete
+peppyScreensaver.prototype.del_mpdoutput = function (data) {
+  const self = this;
+  let defer = libQ.defer();
+
+  exec("sed -n -i '/---> output peppymeter/,/<--- end peppymeter/!p' " + data, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+    if (error) {
+        self.logger.warn(id + 'An error occurred when remove inject' + error);
+    } else {
+        setTimeout(function () {defer.resolve();}, 100);
+    }
+  });
+  return defer.promise;
+};
+
+// jessie redirect standard output to mpd_alsa ---> to delete
+peppyScreensaver.prototype.redirect_mpdoutput = function (data) {
+  const self = this;
+  let defer = libQ.defer();
+  
+  var mpddata = fs.readFileSync(data, 'utf8');
+  mpddata = mpddata.replace('${device}', 'mpd_alsa');
+  fs.writeFile(data, mpddata, 'utf8', function (error) {
+    if (error) {
+        self.logger.error(id + 'Cannot write ' + data + ': ' + error);
+    } else {
+        self.logger.info(id + 'mpd.conf.tmpl file written');
+        defer.resolve();
+    }
+  });
+  return defer.promise;
+};
+
+// jessie modify airplay output ---> to delete
+peppyScreensaver.prototype.redirect_airoutput = function (data) {
+  const self = this;
+  let defer = libQ.defer();
+  
+  var airdata = fs.readFileSync(data, 'utf8');
+  airdata = airdata.replace('${device}', 'peppyalsa');
+  fs.writeFile(data, airdata, 'utf8', function (error) {
+    if (error) {
+        self.logger.error(id + 'Cannot write ' + data + ': ' + error);
+    } else {
+        self.logger.info(id + 'shairport-sync.conf.tmpl file written');
+        defer.resolve();
+    }
+  });
+  return defer.promise;
+};  
+
+// create asound depend on mixer type ---> to delete
 peppyScreensaver.prototype.createAsoundConfig = function () {
   var self = this;  
   var defer = libQ.defer();
@@ -1133,7 +1369,7 @@ peppyScreensaver.prototype.createAsoundConfig = function () {
   return defer.promise;
 };
 
-// write asound.conf from template and remove variables
+// write asound.conf from template and remove variables ---> to delete
 peppyScreensaver.prototype.writeAsoundConfig = function (data, enableSoft) {
   var self = this;
   var asoundTempl = __dirname + '/asound.conf.tmpl';
@@ -1180,65 +1416,8 @@ peppyScreensaver.prototype.writeAsoundConfig = function (data, enableSoft) {
 return defer.promise;  
 };
 
-// buster write asound.conf from template and remove variables
-peppyScreensaver.prototype.writeAsoundConfigModular = function (alsaConf) {
-  var self = this;
-  var asoundTempl = __dirname + '/Peppyalsa.postPeppyalsa.5.conf.tmpl';
-  var conf;
-  var defer = libQ.defer();
-  var useDSP = fs.existsSync(dsp_config) && self.config.get('useDSP');
-  //var useSpotify = fs.existsSync(spotify_config) && self.config.get('useSpotify');
-  
-  if (fs.existsSync(asoundTempl)) {
-    var asounddata = fs.readFileSync(asoundTempl, 'utf8');
-    
-    if (alsaConf == 1) { // DSD native
-        if (!useDSP) {
-            conf = asounddata.replace('${alsaDirect}', 'Peppyalsa');
-        }
 
-    } else {  // modular alsa      
-        //if (useDSP) {
-        //    conf = asounddata.replace('${alsaMeterStd}', 'Peppyalsa');
-        //} else {            
-        conf = asounddata.replace('${alsaMeter}', 'Peppyalsa');
-        //}
-    }
-
-    conf = conf.replace('${alsaMeter}', 'peppy1_off');
-    conf = conf.replace('${alsaDirect}', 'peppy2_off');
-    //conf = conf.replace('${alsaMeterStd}', 'peppy3_off');
-    
-    // change alsa config depend on outputdevice and mixer
-    // no reformat possible for softmixer
-    // for internal cards (hdmi, headphone) 44100 kHz
-    // for external sound cards 16000 kHz (the only rate without error)
-    var outputdevice = self.getAlsaConfigParam('outputdevice');
-    var softmixer = self.getAlsaConfigParam('softvolume');
-        
-    if (outputdevice == 'softvolume') {
-        outputdevice = self.getAlsaConfigParam ('softvolumenumber');
-    }
-// removed since 3.569
-//    var slave_b = softmixer ? 'mpd_peppyalsa' : 'reformat'; 
-//    conf = conf.replace('${slave_b}', slave_b);            
-//    var rate = parseInt(outputdevice,10) > 1 ? 16000 : 44100;
-//    conf = conf.replace('${rate}', rate);    
-        
-    fs.writeFile(__dirname + '/asound/Peppyalsa.postPeppyalsa.5.conf', conf, 'utf8', function (err) {
-        if (err) {
-            self.logger.info('Cannot write Peppyalsa.postPeppyalsa.5.conf: ' + err);
-        } else {
-            //self.logger.info('Peppyalsa.postPeppyalsa.5.conf file written');  
-            defer.resolve();
-        }
-    });
-  }
-
-return defer.promise;  
-};
-
-// called from unistall script (only needed for Jessie)
+// called from unistall script (only needed for Jessie) ---> to delete
 // restore asound.conf
 peppyScreensaver.prototype.restoreAsoundConfig = function () {
   var self = this;  
@@ -1295,75 +1474,4 @@ peppyScreensaver.prototype.restoreAsoundConfig = function () {
   }, 500);
   
   return defer.promise;
-};
-
-peppyScreensaver.prototype.getAlsaConfigParam = function (data) {
-	var self = this;
-	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', data);
-};
-
-peppyScreensaver.prototype.disableSoftMixer = function (data) {
-	var self = this;
-	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'disableSoftMixer', data);
-};
-
-peppyScreensaver.prototype.writeSoftMixerFile = function (data) {
-	var self = this;
-	return self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'writeSoftMixerFile', data);
-};
-
-peppyScreensaver.prototype.IfBuster = function () {
-	var self = this; 
-    return self.commandRouter.executeOnPlugin('system_controller', 'system', 'getConfigParam', 'system_version') < 3.0 ? false : true;
-};
-
-peppyScreensaver.prototype.updateALSAConfigFile = function () {
-	var self = this;
-    var defer = libQ.defer();
-    self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
-    defer.resolve();
-    return defer.promise;
-};
-    
-//--------------------------------------------------------------
-
-// called from commandrouter to find the language file
-peppyScreensaver.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
-  const langFile = 'strings_' + langCode + '.json';
-
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
-  }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
-};
-
-peppyScreensaver.prototype.getConfigParam = function (key) {
-  var self = this;
-  return self.config.get(key);
-};
-
-peppyScreensaver.prototype.setConfigParam = function (data) {
-  var self = this;
-  self.config.set(data.key, data.value);
-};
-
-
-//-------------------------------------------------------------
-
-peppyScreensaver.prototype.setUIConfig = function(data) {
-	var self = this;
-	//Perform your installation tasks here
-};
-
-peppyScreensaver.prototype.getConf = function(varName) {
-	var self = this;
-	//Perform your installation tasks here
-};
-
-peppyScreensaver.prototype.setConf = function(varName, varValue) {
-	var self = this;
-	//Perform your installation tasks here
 };
