@@ -45,7 +45,7 @@ class RandomControl(Thread):
 
         def meter_restart():
             self.meter.stop()
-            time.sleep(1) # wait for threads finshed
+            time.sleep(1.1) # wait for threads finshed
             self.meter.start()
             pg.display.update(self.util.meter_config[SCREEN_RECT])
                     

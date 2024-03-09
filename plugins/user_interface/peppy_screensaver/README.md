@@ -3,6 +3,12 @@ PeppyMeter as screensaver for Volumio on raspberry pi
 >Many thanks to peppy.player, who provided the conditions for this
 
 -----
+##### Version 1.5.0
+* fix title info change issue
+* convert to pygame 2.6 with arm neon fpu support based on SDL2 for Raspberry pi3/4/5
+* all dependecies (peppyalsa, pygame2, cairosvg, socketIO) now precompiled for Raspberry pi3/4/5 
+* therefore no more compilation at installation time, no developer librarys needed -> very easy installation 
+
 ##### Version 1.4.2
 * add Airplay integration
 * fix some graphical issues for random mode on title change

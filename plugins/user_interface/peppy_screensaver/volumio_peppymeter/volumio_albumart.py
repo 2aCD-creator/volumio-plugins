@@ -50,7 +50,7 @@ class AlbumartAnimator(Thread):
             if args[0]['status'] == 'play':
 
                 # for random mode 'change on title' start only on first run
-                if self.meter_config_volumio[RANDOM_TITLE] != True or self.first_run == True:
+                if self.meter_config_volumio[METER] != 'random' or self.meter_config_volumio[RANDOM_TITLE] != True or self.first_run == True:
                     if self.meter_section[EXTENDED_CONF] == True:
                         
                         # draw albumart

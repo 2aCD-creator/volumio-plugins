@@ -7,6 +7,7 @@ import os
 from configparser import ConfigParser
 
 CURRENT = "current"
+METER = "meter"
 BASE_FOLDER = "base.folder"
 METER_FOLDER = "meter.folder"
 FILE_CONFIG = "config.txt"
@@ -87,6 +88,10 @@ class Volumio_ConfigFileParser(object):
             self.meter_config_volumio[FONT_BOLD] = c.get(CURRENT, FONT_BOLD)
         except:
             self.meter_config_volumio[FONT_BOLD] = None
+        try:    
+            self.meter_config_volumio[METER] = c.get(CURRENT, METER)
+        except:
+            self.meter_config_volumio[METER] = None
 
 
         if c.get(CURRENT, BASE_FOLDER):     

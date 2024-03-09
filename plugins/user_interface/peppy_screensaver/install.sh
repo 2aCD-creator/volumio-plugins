@@ -1,8 +1,19 @@
 #!/bin/bash
 
 ARCH=$(cat /etc/os-release | grep ^VOLUMIO_ARCH | tr -d 'VOLUMIO_ARCH="')
-
 echo "Installing peppy-screensaver Dependencies"
+
+# define check python modul available 
+checkModul () {
+  python3 -c "\
+try:
+    import $1  
+    print('1')
+except ImportError:
+    pass"
+}
+# ----------------------------------
+
 
 # If you need to differentiate install for armhf and i386 you can get the variable like this
 #DPKG_ARCH=`dpkg --print-architecture`
@@ -17,31 +28,26 @@ data_path=/data/INTERNAL/peppy_screensaver/templates
 ID=$(awk '/VERSION_ID=/' /etc/*-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
 VER=$(awk '/VOLUMIO_VERSION=/' /etc/*-release | sed 's/VOLUMIO_VERSION=//' | sed 's/\"//g')
 APTUPD = "false"
+PIPUPD = "false"
 
 ########################################
 # install peppyalsa     
 if [ ! -f "/usr/local/lib/libpeppyalsa.so" ]; then
+    # for pi3/4/5 used precompiled version
     if [ $ARCH = "arm" ]; then
         echo "___Install peppyalsa ..."
-        cd /usr/local/lib 
-        sudo cp -f ${dest_path}/peppyalsa/* ./
-        sudo chmod 644 libpeppyalsa.a
-        sudo chmod 755 libpeppyalsa.la
-        sudo chmod 755 libpeppyalsa.so.0.0.0
-        sudo rm -f libpeppyalsa.so.0
-        sudo rm -f libpeppyalsa.so
-        sudo ln -s libpeppyalsa.so.0.0.0 libpeppyalsa.so.0
-        sudo ln -s libpeppyalsa.so.0.0.0 libpeppyalsa.so
+        sudo tar -xzf ${dest_path}/dependencies/peppyalsa.tar.gz  -C /usr/local/lib
         
         echo "___Install peppyalsa client ..."
         PA_CLIENT=/home/volumio/peppyalsa/src
         mkdir -p ${PA_CLIENT}
-        cp -p ${dest_path}/peppyalsa/peppyalsa-client ${PA_CLIENT}/
+        cp -p ${dest_path}/dependencies/peppyalsa-client ${PA_CLIENT}/
         chmod 755 ${PA_CLIENT}/peppyalsa-client
-
+    
+    # otherwise start compilation
     else
         echo "___Install peppyalsa dependencies..."
-        if [ ! $APTUPD = "true" ]; then sudo apt-get update && APTUPD=true; fi
+        sudo apt-get update && APTUPD=true
         mkdir $ppa_path
         git clone https://github.com/project-owner/peppyalsa.git $ppa_path
         cd $ppa_path
@@ -58,7 +64,7 @@ if [ ! -f "/usr/local/lib/libpeppyalsa.so" ]; then
 else
     echo "___peppyalsa already installed"
 fi
-sudo rm -rd ${dest_path}/peppyalsa
+
 
 ########################################
 # build peppyalsa commandline client for test of installed peppyalsa
@@ -90,6 +96,7 @@ fi
 mv -f ${dest_path}/volumio_peppymeter/* ${peppy_path}/ 
 rm -rd ${dest_path}/volumio_peppymeter
 sudo chmod +x ${peppy_path}/run_peppymeter.sh
+
 # templates
 mkdir -p ${data_path} 
 mv -f ${dest_path}/templates/* ${data_path}/
@@ -106,37 +113,60 @@ sudo chmod -R 777 ${data_path}
 
 ########################################
 # install python and pygame
-if [ $(python3 -m pip show  pygame | grep -c "pygame") -eq 0 ]; then 
+
+if [ $(checkModul "pygame" | grep -c '1') -eq 0 ]; then 
+
+    # for pi3/4/5 used precompiled version of pygame2
     echo "___Install python pygame..."
-    if [ ! $APTUPD = "true" ]; then sudo apt-get update && APTUPD=true; fi
-    sudo apt-get -y install python3-pip
-    sudo apt-get -y install python3-pygame
-    #sudo apt-get -y install python3-pygame=1.9.4.post1+dfsg-3
+    if [ $ARCH = "arm" ]; then
+        sudo tar -xzf ${dest_path}/dependencies/pygame2.tar.gz  -C /usr
+    
+    # otherwise install older version 1.9.4
+    else
+        if [ $APTUPD = "false" ]; then sudo apt-get update && APTUPD=true; fi
+        sudo apt-get -y install python3-pip && PIPUPD=true
+    
+        # default pygame 1.9.4
+        sudo apt-get -y install python3-pygame
+        #sudo apt-get -y install python3-pygame=1.9.4.post1+dfsg-3
+    
+        # pygame 2.5.2 
+        #sudo apt install libsdl2-image-2.0-0 libsdl2-ttf-2.0-0
+        #python3 -m pip install pygame==2.5.2
+    fi
 else
     echo "___Python pygame already installed"
 fi
 
-# for buster
-if [ "$ID" = "10" ]; then
-    if [ $(python3 -m pip show  socketIO-client | grep -c "socketIO-client") -eq 0 ]; then 
-        echo "___Install python socket-IO..."
-        if [ ! $APTUPD = "true" ]; then sudo apt-get update && APTUPD=true; fi
-        sudo python3 -m pip install socketIO-client
+
+if [ $(checkModul "socketIO_client" | grep -c '1') -eq 0 ]; then     
+    echo "___Install python socket-IO..."
+    if [ $ARCH = "arm" ]; then
+        sudo tar -xzf ${dest_path}/dependencies/socketIO.tar.gz  -C /usr/local/lib/python3.7/dist-packages
     else
-        echo "___Python sockt-IO already installed"
+        if [ $APTUPD = "false" ]; then sudo apt-get update && APTUPD=true; fi
+        if [ $PIPUPD = "false" ]; then sudo apt-get -y install python3-pip && PIPUPD=true; fi
+        sudo python3 -m pip install socketIO-client
     fi
-    if [ $(python3 -m pip show CairoSVG | grep -c "CairoSVG") -eq 0 ]; then
-        echo "___Install python cairoSVG..."
-        if [ ! $APTUPD = "true" ]; then sudo apt-get update && APTUPD=true; fi
+else
+        echo "___Python sockt-IO already installed"
+fi
+
+if [ $(checkModul "cairosvg" | grep -c '1') -eq 0 ]; then
+    echo "___Install python cairoSVG..."
+    if [ $ARCH = "arm" ]; then
+        sudo tar -xzf ${dest_path}/dependencies/cairosvg.tar.gz  -C /usr/local/lib/python3.7/dist-packages
+    else
+        if [ $APTUPD = "false" ]; then sudo apt-get update && APTUPD=true; fi
+        if [ $PIPUPD = "false" ]; then sudo apt-get -y install python3-pip && PIPUPD=true; fi
         sudo apt install libjpeg-dev zlib1g-dev
         sudo python3 -m pip install cairosvg
-    else
-        echo "___Python cairoSVG already installed"
-    fi    
-    
+    fi
 else
-    echo "___jessie not more supported"
-fi
+        echo "___Python cairoSVG already installed"
+fi    
+
+sudo rm -rd ${dest_path}/dependencies
 
 ########################################
 # modify PeppyMeter config for Volumio
