@@ -56,6 +56,7 @@ class CallBack:
         for i in range(0, 100, 10): 
             meter.set_volume(i)
             time.sleep(0.07)
+        meter.set_volume(100)
 
     def img_FadeIn(self, img, a):
         img.set_alpha(a)
