@@ -38,7 +38,7 @@
     "RANDOMINTERVAL":"Random Interval",
     "RANDOMINTERVAL_DOC":"Time interval until the next meter is displayed",
     "NEEDLE_CACHE":"Needle Cache",
-    "NEEDLE_CACHE_DOC":"A Raspberry with 1GB RAM and a display resolution of 1920x1080 or 1280x800 is hard at the memory limit. Therefore the cache has to be switched off, in order to save memory. Otherwise, no random or list mode is possible",
+    "NEEDLE_CACHE_DOC":"All pictures of selected resolution are cached for a faster switch between styles in random mode.<br />The cache mode is only available for systems with at least 4GB installed memory",
     "CACHESIZE":"Cache Size",
     "CACHESIZE_DOC":"Number of cached meters per selected resolution. Please be careful about increasing the value. An increased value requires more memory because more resources are cached. If there is not enough memory, the system may freeze.",
     "ACTIVE_FOLDER":"Active meter folder",

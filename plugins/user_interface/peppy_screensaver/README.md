@@ -8,6 +8,7 @@ PeppyMeter as screensaver for Volumio on raspberry pi
 * add volume fadeIn also for spectrum
 * add animation on startup and on close of screensaver
 * add the possibility to change the position of screensaver window if it smaller then screen
+* disable cache mode per default for systems with installed memory smaller then 4Gb
 
 ##### Version 2.2.0
 * update socketIO to 4.6 to make it compatible to updated volumio socketIO server

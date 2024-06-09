@@ -7,6 +7,7 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var sizeOf = require('image-size');
 var use_SDL2 = false;
+var lt_4GB = false;
 
 const lineReader = require('line-reader');
 const io = require('socket.io-client');
@@ -109,6 +110,8 @@ peppyScreensaver.prototype.onStart = function() {
 
     // check pygame 2 installed
     self.get_SDL2_enabled().then(function (SDL) { use_SDL2 = SDL; });
+    // check installed Memory
+    self.get_lt_4gb().then(function (lt4GB) { lt_4GB = lt4GB; });
               
     if (self.IfBuster()) {
       //_________________ detect Buster _________________
@@ -440,16 +443,22 @@ peppyScreensaver.prototype.getUIConfig = function() {
                 uiconf.sections[0].content[11].attributes[3].max,
                 uiconf.sections[0].content[11].attributes[0].placeholder];
 
+            // for installed memory < 4Gb hide needle cache
+            if (lt_4GB) {
+                uiconf.sections[0].content[12].hidden = true;
+                uiconf.sections[0].content[12].value = false;
+            } else {
             // needle cache
-            var needleCache = (peppy_config.current['use.cache']).toLowerCase() == 'true' ? true : false;
-            uiconf.sections[0].content[12].value = needleCache;
+                var needleCache = (peppy_config.current['use.cache']).toLowerCase() == 'true' ? true : false;
+                uiconf.sections[0].content[12].value = needleCache;
 
             // cache size
-            uiconf.sections[0].content[13].value = parseInt(peppy_config.current['cache.size'], 10);                                
-            minmax[4] = [uiconf.sections[0].content[13].attributes[2].min,
-                uiconf.sections[0].content[13].attributes[3].max,
-                uiconf.sections[0].content[13].attributes[0].placeholder];
-                
+                uiconf.sections[0].content[13].value = parseInt(peppy_config.current['cache.size'], 10);                                
+                minmax[4] = [uiconf.sections[0].content[13].attributes[2].min,
+                    uiconf.sections[0].content[13].attributes[3].max,
+                    uiconf.sections[0].content[13].attributes[0].placeholder];
+            }
+            
             // mouse support
             var mouseSupport = (peppy_config.sdl.env['mouse.enabled']).toLowerCase() == 'true' ? true : false;
             uiconf.sections[0].content[14].value = mouseSupport;
@@ -623,13 +632,14 @@ peppyScreensaver.prototype.savePeppyMeterConf = function (confData) {
         self.checkMetersFile();
     }
 
+
+    // write position type        
+    var pos_type = use_SDL2 ? confData.positionType.value == 0? 'center' : 'manual' : 'center';
+    if (peppy_config.current['position.type'] !== pos_type) {
+        peppy_config.current['position.type'] = pos_type;
+        noChanges = false;
+    }
     if (use_SDL2) {
-        // write position type        
-        var pos_type = confData.positionType.value == 0? 'center' : 'manual';
-        if (peppy_config.current['position.type'] !== pos_type) {
-            peppy_config.current['position.type'] = pos_type;
-            noChanges = false;
-        }
         // write position x
         if (Number.isNaN(parseInt(confData.position_x, 10)) || !isFinite(confData.position_x)) {
             uiNeedsUpdate = true;
@@ -678,25 +688,27 @@ peppyScreensaver.prototype.savePeppyMeterConf = function (confData) {
     
     
     // write needle cache
-    var needleCache = confData.needleCache? 'True' : 'False';
+    var needleCache = lt_4GB ? 'False' : confData.needleCache? 'True' : 'False';
     if (peppy_config.current['use.cache'] != needleCache) {
         peppy_config.current['use.cache'] = needleCache;
         noChanges = false;
     }
-    
+
     // write cache size
-    if (Number.isNaN(parseInt(confData.cachesize, 10)) || !isFinite(confData.cachesize)) {
-        uiNeedsUpdate = true;
-        setTimeout(function () {
-            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('PEPPY_SCREENSAVER.PLUGIN_NAME'), self.commandRouter.getI18nString('PEPPY_SCREENSAVER.CACHESIZE') + self.commandRouter.getI18nString('PEPPY_SCREENSAVER.NAN'));
-        }, 500);
-    } else {
-        confData.cachesize = self.minmax('CACHESIZE', confData.cachesize, minmax[4]);
-        if (peppy_config.current['cache.size'] != confData.cachesize) {
-            peppy_config.current['cache.size'] = confData.cachesize;
-            noChanges = false;
+    if (!lt_4GB) {
+        if (Number.isNaN(parseInt(confData.cachesize, 10)) || !isFinite(confData.cachesize)) {
+            uiNeedsUpdate = true;
+            setTimeout(function () {
+                self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('PEPPY_SCREENSAVER.PLUGIN_NAME'), self.commandRouter.getI18nString('PEPPY_SCREENSAVER.CACHESIZE') + self.commandRouter.getI18nString('PEPPY_SCREENSAVER.NAN'));
+            }, 500);
+        } else {
+            confData.cachesize = self.minmax('CACHESIZE', confData.cachesize, minmax[4]);
+            if (peppy_config.current['cache.size'] != confData.cachesize) {
+                peppy_config.current['cache.size'] = confData.cachesize;
+                noChanges = false;
+            }
         }
-    }    
+    }
     
     // smooth buffer
     if (Number.isNaN(parseInt(confData.smoothBuffer, 10)) || !isFinite(confData.smoothBuffer)) {
@@ -1130,6 +1142,29 @@ peppyScreensaver.prototype.get_SDL2_enabled = function (data) {
         self.logger.warn(id + 'An error occurred on pygame check', error);
     } else {
         if (stdout.includes('pygame 2.')) {
+            defer.resolve(true);
+            return true;
+        } else {
+            defer.resolve(false);
+            return false;
+        }            
+    }
+  });
+    return defer.promise;
+};
+
+// check if installed memory smaller then 4GB)
+peppyScreensaver.prototype.get_lt_4gb = function (data) {
+    const self = this;
+    var defer = libQ.defer();
+  
+    var get_str = "free -m | grep Mem: | awk '{print $2}'"   
+
+    exec(get_str, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+    if (error) {
+        self.logger.warn(id + 'An error occurred on get memory', error);
+    } else {
+        if (parseInt(stdout, 10) < 3000) {
             defer.resolve(true);
             return true;
         } else {

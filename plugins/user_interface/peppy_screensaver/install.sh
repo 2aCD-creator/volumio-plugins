@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ARCH=$(cat /etc/os-release | grep ^VOLUMIO_ARCH | tr -d 'VOLUMIO_ARCH="')
+TOTAL_MEM=$(free -m | grep Mem: | awk '{print $2}')
 echo "Installing peppy-screensaver Dependencies"
 
 # define check python modul available 
@@ -238,6 +239,12 @@ sed -i 's|random.meter.interval.*|random.meter.interval = 60|g' $CFG
 sed -i 's|exit.on.touch.*|exit.on.touch = True|g' $CFG
 sed -i 's|stop.display.on.touch.*|stop.display.on.touch = True|g' $CFG
 sed -i "s|base.folder.*|base.folder = ${DATA_path}/templates|g" $CFG
+if [ $TOTAL_MEM -lt 3000 ] ; then
+    sed -i 's|use.cache.*|use.cache = False|g' $CFG
+else
+    sed -i 's|use.cache.*|use.cache = True|g' $CFG
+fi
+
 if ! grep -q 'volumio entries' $CFG; then
     sed -i '/\[sdl.env\]/i\
 # --- volumio entries -------\
@@ -271,7 +278,6 @@ sed -i 's|no.frame.*|no.frame = True|g' $CFG
 # section data.source
 sed -i 's|pipe.name.*|pipe.name = /tmp/myfifo|g' $CFG
 sed -i 's|smooth.buffer.size.*|smooth.buffer.size = 8|g' $CFG
-
 
 ########################################
 # modify PeppySpectrum config for Volumio

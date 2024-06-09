@@ -38,7 +38,7 @@
     "RANDOMINTERVAL":"Random-Intervall",
     "RANDOMINTERVAL_DOC":"Zeitintervall bis das nächste VU_Meter angezeigt wird",
     "NEEDLE_CACHE":"Needle Cache",
-    "NEEDLE_CACHE_DOC":"Ein Raspberry mit 1GB RAM und einer Displayauflösung von 1920x1080 oder 1280x800 ist hart am Speicherlimit. Deshalb muss der Cache abgeschaltet werden, um Speicher zu sparen. Ansonsten ist kein Random- oder List-Modus möglich",
+    "NEEDLE_CACHE_DOC":"Alle Bilder der ausgewählten Auflösung werden zwischengespeichert, um im Random-Modus schneller zwischen den Stilen wechseln zu können.<br />Der Cache-Modus ist nur für Systeme mit mindestens 4 GB installiertem Speicher verfügbar",
     "CACHESIZE":"Cache-Größe",
     "CACHESIZE_DOC":"Anzahl der zwischengespeicherten VU_Meter pro ausgewählter Auflösung. Bitte seien Sie vorsichtig mit der Erhöhung des Wertes. Ein erhöhter Wert benötigt mehr Speicher, da mehr Resourcen zwischengespeichert werden. Reicht der Speicher nicht aus, kann es zum Einfrieren des Systems kommen.",
     "ACTIVE_FOLDER":"Aktiver VU_Meter Ordner",
